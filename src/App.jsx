@@ -7,6 +7,8 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
+import { UserAuthContextProvider } from './context/UserAuthContext';
+import ProtectedRoute from "./Pages/ProtectedRoutes"
 import "./App.css";
 import NavBar from "./components/NavBar";
 import Home from "./Pages/Home";
