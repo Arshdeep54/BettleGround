@@ -33,9 +33,10 @@ function Login() {
     }
   };
   return (
-    <>
+  
+     <>
       <NavBar />
-      
+      <form onSubmit={handleSubmit}>
         <div className="flex justify-center self-center  z-10">
           <div className="p-12 bg-white mx-auto rounded-2xl w-100 ">
             <div className="mb-4">
@@ -44,50 +45,56 @@ function Login() {
             </div>
             <div className="space-y-5">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-gray-700 tracking-wide">
+                <label htmlFor="email" className="text-sm font-medium text-gray-700 tracking-wide">
                   Email
                 </label>
                 <input
-                  className=" w-full text-base px-4 py-2 border  border-gray-300 rounded-lg focus:outline-none focus:border-green-400"
-                  type=""
+                  id="email"
+                  type="email"
+                  className="w-full text-base px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-400"
                   placeholder="mail@gmail.com"
+                  value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <label className="mb-5 text-sm font-medium text-gray-700 tracking-wide">
+                <label htmlFor="password" className="mb-5 text-sm font-medium text-gray-700 tracking-wide">
                   Password
                 </label>
                 <input
-                  className="w-full content-center text-base px-4 py-2 border  border-gray-300 rounded-lg focus:outline-none focus:border-green-400"
-                  type=""
+                  id="password"
+                  type="password"
+                  className="w-full content-center text-base px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-green-400"
                   placeholder="Enter your password"
+                  value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
-              <div className="flex items-center justify-between"></div>
               <div>
                 <button
                   type="submit"
-                  className="w-full flex justify-center bg-green-400  hover:bg-green-500 text-gray-100 p-3  rounded-full tracking-wide font-semibold  shadow-lg cursor-pointer transition ease-in duration-500" onClick={handleSubmit}
+                  className="w-full flex justify-center bg-green-400 hover:bg-green-500 text-gray-100 p-3 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500"
                 >
                   Sign in
                 </button>
-
                 <p className="text-gray-500 flex justify-center py-2">OR</p>
                 <button
-                  type="submit"
-                  className="w-full flex justify-center bg-green-400  hover:bg-green-500 text-gray-100 p-3  rounded-full tracking-wide font-semibold  shadow-lg cursor-pointer transition ease-in duration-500"
+                  type="button"
+                  className="w-full flex justify-center bg-green-400 hover:bg-green-500 text-gray-100 p-3 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500"
                   onClick={handleGoogleSignIn}
                 >
-                  Sign Up with Google
+                  Sign in with Google
                 </button>
               </div>
+              
             </div>
           </div>
         </div>
+      </form>
     </>
   );
 }
 
 export default Login;
+
+
