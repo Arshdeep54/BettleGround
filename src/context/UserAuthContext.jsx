@@ -22,21 +22,19 @@ const userAuthContext = createContext({
 export function UserAuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
 
-  function logIn(email, password) {
+  async function logIn(email, password) {
     return signInWithEmailAndPassword(auth, email, password);
   }
   
-  function signUp(email, password, displayName) {
-    return createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        if (user) {
-          return updateProfile(user, { displayName: displayName }).then(() => {
-            return userCredential;
-          });
-        }
+  async function signUp(email, password, displayName) {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    if (user) {
+      return updateProfile(user, { displayName: displayName }).then(() => {
         return userCredential;
       });
+    }
+    return userCredential;
   }
   
   function logOut() {

@@ -1,7 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
+import { useUserAuth } from "../context/UserAuthContext";
+import { ethers } from "ethers";
 
 function NavBar() {
+  const { user, logOut } = useUserAuth();
+  const [provider, setProvider] = useState(null);
+  const connectWallet=async()=>{
+    if (typeof window.ethereum !== "undefined") {
+
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      await provider.send("eth_requestAccounts");
+      setProvider(provider);
+    } else {
+      console.error("Please install a wallet to interact with the blockchain.");
+    }
+  }
   return (
     <>
       <div className="navbar bg-base-100 ">
@@ -78,7 +92,7 @@ function NavBar() {
               </NavLink>
             </div>
           </div>
-          {localStorage.getItem("access") ? (
+          {user ? (
             <div className="dropdown dropdown-end">
               <div
                 tabIndex={0}
@@ -88,7 +102,7 @@ function NavBar() {
                 <div className="w-10 rounded-full">
                   <img
                     alt="Tailwind CSS Navbar component"
-                    src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg"
+                    src={user.photoURL}
                   />
                 </div>
               </div>
@@ -97,16 +111,19 @@ function NavBar() {
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
               >
                 <li>
-                  <a className="justify-between">
-                    Profile
-                    <span className="badge">New</span>
+                  <p>{user.displayName}</p>
+                </li>
+                <li>
+                  <a onClick={connectWallet}>{provider?"Connected":"Connect Wallet"}</a>
+                </li>
+                <li>
+                  <a
+                    onClick={() =>
+                      document.getElementById("my_modal_2").showModal()
+                    }
+                  >
+                    Logout
                   </a>
-                </li>
-                <li>
-                  <a>Settings</a>
-                </li>
-                <li>
-                  <a>Logout</a>
                 </li>
               </ul>
             </div>
@@ -117,6 +134,19 @@ function NavBar() {
           )}
         </div>
       </div>
+      <dialog id="my_modal_2" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">LogOut</h3>
+          <p className="py-4">Are you sure you want to LogOut?</p>
+        <form method="dialog">
+          <div className="flex flex-row-reverse ">
+
+        <button className="btn mx-3" onClick={logOut}>Confirm</button>
+        <button className="btn mx-3" >Cancel</button>
+          </div>
+        </form>
+        </div>
+      </dialog>
     </>
     // <>
     //   <div className="navbar bg-base-100">

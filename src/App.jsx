@@ -7,8 +7,8 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { UserAuthContextProvider } from './context/UserAuthContext';
-import ProtectedRoute from "./Pages/ProtectedRoutes"
+import { UserAuthContextProvider } from "./context/UserAuthContext";
+import ProtectedRoute from "./Pages/ProtectedRoutes";
 import "./App.css";
 import NavBar from "./components/NavBar";
 import Home from "./Pages/Home";
@@ -21,43 +21,23 @@ import Notify from "./Pages/Notify";
 import Event from "./Pages/Event";
 
 function App() {
-  const Root = () => {
-    return (
-      <>
-        <div>
-          <Link>Home</Link>
-          <Link>Data</Link>
-        </div>
-      </>
-    );
-  };
-  const router = createBrowserRouter(
-    createRoutesFromElements(
-      <Route path="/" element={<Root />}>
-        <Route index element={<Home />} />
-        <Route path="/data" element={<Home />} />
-        {/* <Route path="/contact" element={<Contact />} /> */}
-      </Route>
-    )
-  );
   return (
     <>
-       <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/about' element={<About />} />
-          <Route path='/notify' element={<Notify />} />
-          <Route path='/events/:eventID' element={<Event />} />
-          <Route path='/auth/profile' element={<UserProfile />} />
-          <Route path='/auth/login' element={<Login />} />
-          <Route path='/auth/signup' element={<Signup />} />
-          <Route path='/contact' element={<Contact />} />
-        </Routes>
-      </BrowserRouter>
-      {/* <NavBar/>
-    <h1 className="text-3xl font-bold underline">
-      Hello world!
-    </h1> */}
+      <UserAuthContextProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/notify" element={<Notify />} />
+            <Route path="/events/:eventID" element={<Event />} />
+            <Route path="/auth/profile" element={<UserProfile />} />
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/signup" element={<Signup />} />
+            <Route path="/contact" element={<Contact />} />
+          </Routes>
+        </BrowserRouter>{" "}
+      </UserAuthContextProvider>
+     
     </>
   );
 }
