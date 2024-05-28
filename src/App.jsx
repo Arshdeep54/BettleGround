@@ -19,7 +19,8 @@ import Contact from "./Pages/Contact";
 import About from "./Pages/About";
 import Notify from "./Pages/Notify";
 import Events from "./Pages/Events";
-import Event from "./Pages/Event";
+import { UserWeb3ContextProvider } from "./context/web3Contex";
+import EventPage from "./Pages/EventPage";
 
 function App() {
   return (
@@ -31,7 +32,8 @@ function App() {
             <Route path="/events" element={<Event />} />
             <Route path="/about" element={<About />} />
             <Route path="/notify" element={<Notify />} />
-            <Route path="/events/:eventID" element={<Events />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/event/:eventID" element={<EventPage />} />
             <Route path="/auth/profile" element={<UserProfile />} />
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/signup" element={<Signup />} />
@@ -39,7 +41,6 @@ function App() {
           </Routes>
         </BrowserRouter>{" "}
       </UserAuthContextProvider>
-     
     </>
   );
 }

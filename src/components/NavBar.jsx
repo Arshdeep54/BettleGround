@@ -3,19 +3,20 @@ import { NavLink } from "react-router-dom";
 import { useUserAuth } from "../context/UserAuthContext";
 import { ethers } from "ethers";
 import DefaultImage from '../assets/defaultprofile.png'
+import { useWeb3, } from "../context/web3Contex";
 function NavBar() {
   const { user, logOut } = useUserAuth();
-  const [provider, setProvider] = useState(null);
-  const connectWallet=async()=>{
-    if (typeof window.ethereum !== "undefined") {
+  const {provider,getContract,connectWallet}=useWeb3()
+  // const connectWallet=async()=>{
+  //   if (typeof window.ethereum !== "undefined") {
 
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      await provider.send("eth_requestAccounts");
-      setProvider(provider);
-    } else {
-      console.error("Please install a wallet to interact with the blockchain.");
-    }
-  }
+  //     const provider = new ethers.providers.Web3Provider(window.ethereum);
+  //     await provider.send("eth_requestAccounts");
+  //     setProvider(provider);
+  //   } else {
+  //     console.error("Please install a wallet to interact with the blockchain.");
+  //   }
+  // }
   return (
     <>
       <div className="navbar bg-base-300 ">

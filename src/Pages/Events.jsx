@@ -1,200 +1,254 @@
 import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
-import { useLocation, useParams } from "react-router-dom";
-import { useUserAuth } from "../context/UserAuthContext";
+import Card from "../components/Card";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function Events() {
-  const { eventID } = useParams();
-  const { state } = useLocation();
-  const [isAllowed, setIsAllowed] = useState(false);
-  const { user } = useUserAuth();
-  const [betAmount, setBetAmount] = useState(0);
-  useEffect(() => {
-    if (user) {
-      if (state.uid == user.uid) {
-        setIsAllowed(true);
+const [events,setEvents]=useState([])
+const [loading,setLoading]=useState(false)
+useEffect(()=>{
+  const getEvents=()=>{
+    setLoading(true)
+    const eventsArray=[
+      {
+        eventName:"IPL",
+        hostedBy:"Jay Shah",
+        uid:"2zt0bWhT8ofobrG6Oo6MP9kv7aE3",
+        tags:['sports','cricket'],
+        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi itaque recusandae mollitia? Enim mollitia rerum dolores maiores consectetur eius, laudantium modi, in itaque sit nostrum ipsa voluptas nobis reiciendis qui!Aliquam repudiandae ut ratione iste itaque quaerat similique dolorum animi aut tempora ullam nesciunt laudantium consequuntur sequi, dolores in, quo quidem aspernatur, nemo harum explicabo facere quam velit? Saepe, suscipit.Nesciunt ratione pariatur sequi, at architecto ullam non recusandae facere ab consequuntur, nostrum animi. Ut, minima magnam? Suscipit, eligendi. Quasi perferendis voluptates soluta aliquam ipsa error vitae at laboriosam animi.",
+        status:"onGoing",
+        ends:'2024-06-24',
+        matches:[
+          {
+            outcomeA:{text:"RCB",id:1},
+            outcomeB:{text:"CSK",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"PBKS",id:1},
+            outcomeB:{text:"MI",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"DC",id:1},
+            outcomeB:{text:"KKR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"SRH",id:1},
+            outcomeB:{text:"RR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+        ]
+
+      },
+      {
+        eventName:"IPL",
+        hostedBy:"Jay Shah",
+        tags:['sports','cricket'],
+        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi itaque recusandae mollitia? Enim mollitia rerum dolores maiores consectetur eius, laudantium modi, in itaque sit nostrum ipsa voluptas nobis reiciendis qui!Aliquam repudiandae ut ratione iste itaque quaerat similique dolorum animi aut tempora ullam nesciunt laudantium consequuntur sequi, dolores in, quo quidem aspernatur, nemo harum explicabo facere quam velit? Saepe, suscipit.Nesciunt ratione pariatur sequi, at architecto ullam non recusandae facere ab consequuntur, nostrum animi. Ut, minima magnam? Suscipit, eligendi. Quasi perferendis voluptates soluta aliquam ipsa error vitae at laboriosam animi.",
+        status:"onGoing",
+        ends:'2024-06-24',
+        matches:[
+          {
+            outcomeA:{text:"RCB",id:1},
+            outcomeB:{text:"CSK",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"PBKS",id:1},
+            outcomeB:{text:"MI",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"DC",id:1},
+            outcomeB:{text:"KKR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"SRH",id:1},
+            outcomeB:{text:"RR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+        ]
+
+      },{
+        eventName:"IPL",
+        hostedBy:"Jay Shah",
+        tags:['sports','cricket'],
+        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi itaque recusandae mollitia? Enim mollitia rerum dolores maiores consectetur eius, laudantium modi, in itaque sit nostrum ipsa voluptas nobis reiciendis qui!Aliquam repudiandae ut ratione iste itaque quaerat similique dolorum animi aut tempora ullam nesciunt laudantium consequuntur sequi, dolores in, quo quidem aspernatur, nemo harum explicabo facere quam velit? Saepe, suscipit.Nesciunt ratione pariatur sequi, at architecto ullam non recusandae facere ab consequuntur, nostrum animi. Ut, minima magnam? Suscipit, eligendi. Quasi perferendis voluptates soluta aliquam ipsa error vitae at laboriosam animi.",
+        status:"onGoing",
+        ends:'2024-06-24',
+        matches:[
+          {
+            outcomeA:{text:"RCB",id:1},
+            outcomeB:{text:"CSK",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"PBKS",id:1},
+            outcomeB:{text:"MI",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"DC",id:1},
+            outcomeB:{text:"KKR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"SRH",id:1},
+            outcomeB:{text:"RR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+        ]
+
+      },{
+        eventName:"IPL",
+        hostedBy:"Jay Shah",
+        uid:"2zt0bWhT8ofobrG6Oo6MP9kv7aE3",
+        tags:['sports','cricket'],
+        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi itaque recusandae mollitia? Enim mollitia rerum dolores maiores consectetur eius, laudantium modi, in itaque sit nostrum ipsa voluptas nobis reiciendis qui!Aliquam repudiandae ut ratione iste itaque quaerat similique dolorum animi aut tempora ullam nesciunt laudantium consequuntur sequi, dolores in, quo quidem aspernatur, nemo harum explicabo facere quam velit? Saepe, suscipit.Nesciunt ratione pariatur sequi, at architecto ullam non recusandae facere ab consequuntur, nostrum animi. Ut, minima magnam? Suscipit, eligendi. Quasi perferendis voluptates soluta aliquam ipsa error vitae at laboriosam animi.",
+        status:"onGoing",
+        ends:'2024-06-24',
+        matches:[
+          {
+            outcomeA:{text:"RCB",id:1},
+            outcomeB:{text:"CSK",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"PBKS",id:1},
+            outcomeB:{text:"MI",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"DC",id:1},
+            outcomeB:{text:"KKR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"SRH",id:1},
+            outcomeB:{text:"RR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+        ]
+
       }
-    }
-  }, []);
-  const makeBet = (match) => {
-    console.log("making bet on ", match);
-  };
+    ]
+    setEvents([...eventsArray])
+  }
+  getEvents();
+},[])
+useEffect(() => {
+  if(events.length>0){
+    setLoading(false)
+  }
+ console.log(events);
+}, [events])
+
   return (
     <>
       <NavBar />
-      {/*  TODO
-      <div>
-        Event {eventID},<br />
-        Display all events detail and matchs<br/>
-        Show add match button only to owner of the event 
-      </div> */}
-      <section className="mx-12 my-5">
-        <div className=" w-full bg-base-100 my-3">
-          <div className="">
-            <h2 className="card-title text-xl my-2">
-              {state.name}
-            </h2>
-            <h2>
-              <div className="badge badge-secondary badge-outline right-100 my-2">{state.status}</div>
-              <div className="card-title text-xl my-2">Hosted By: {state.hostedBy}</div>
-            </h2>
-            <p className="text-s">{state.description}</p>
-            <div className="card-actions justify-end my-4">
-              <div className="badge badge-outline">{state.tags[0]}</div>
-              <div className="badge badge-outline">{state.tags[1]}</div>
+      <section className="eventSection my-5 mx-12">
+        <div className="mx-5 flex justify-between items-center flex-row">
+          <div className="text-6xl card-title m-4">Events</div>
+          <div className="flex item-center flex-row">
+            <div className="mx-2">
+              <button
+                className="btn"
+                onClick={() =>
+                  document.getElementById("my_modal_4").showModal()
+                }
+              >
+                + Add Event
+              </button>
+              <dialog id="my_modal_4" className="modal">
+                <div className="modal-box w-11/12 max-w-5xl">
+                  <h3 className="font-bold text-lg">Hello!</h3>
+                  <p className="py-4">Click the button below to close</p>
+                  <div className="modal-action">
+                    <form method="dialog">
+                      {/* if there is a button, it will close the modal */}
+                      <button className="btn">Close</button>
+                    </form>
+                  </div>
+                </div>
+              </dialog>
             </div>
+            
+            <label className="input input-bordered flex items-center gap-2">
+              <input type="text" className="grow" placeholder="Search" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                className="w-4 h-4 opacity-70"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </label>
           </div>
         </div>
-        <div className="divider divider-accent"></div>
-        <div>
-          <div className="card-title text-xl my-5">Matches </div>
-          <ul>
-            {state.matches.map((match, index) => {
-              return (
-                <>
-                  <li key={index}>
-                    <div className="flex justify-between">
-                      <div className="badge badge-primary badge-outline py-2 ">{match.status}</div>
-                      <span className="countdown font-mono text-2xl right">
-                        <span style={{ "--value": 10 }}></span>:
-                        <span style={{ "--value": 24 }}></span>:
-                        <span style={{ "--value": 51 }}></span>
-                      </span>
-                    </div>
-                    <div className="my-3 flex gap-2 flex-row align-center justify-center">
-                      <div className="flex flex-col w-full lg:flex-row">
-                        <div className="grid w-full h-32 card bg-base-300 rounded-box place-items-center card-title mx-12">
-                          {match.outcomeA.text}
-                        </div>
-                        <div className="divider lg:divider-horizontal">VS</div>
-                        <div className="grid w-full h-32 card bg-base-300 rounded-box place-items-center card-title mx-12">
-                          {match.outcomeB.text}
-                        </div>
-                      </div>
+        <div className="divider divider-default"></div>
+        <div className="p-2 mx-5 my-3 grid grid-cols-2 gap-5 ">
+          {loading?
+          (
+            <LoadingSpinner/>
+          )
+          :
+           events.map((event,index)=>{
+              return (<Card
+              id={index}
+              name={event.eventName}
+              uid={event.uid}
+              hostedBy={event.hostedBy}
+              description={event.description}
+              status={event.status}
+              tags={event.tags}
+              matches={event.matches}
+            />)
+            })
+          }
+         
 
-                    </div>
-                    <div className="w-full flex flex-col items-center">
-                      <button
-                        className="btn btn-wide btn-primary my-4 "
-                        onClick={() =>
-                          document.getElementById("my_modal_4").showModal()
-                        }
-                      >
-                        Bet
-                      </button>
-                    </div>
-                    <dialog id="my_modal_4" className="modal">
-                      <div className="modal-box">
-                        <h3 className="font-bold text-lg my-2">Make bet </h3>
-                        <div className="divider"></div>
-                        {/* <div className="text my-2 flex flex-col items-center w-full">
-                            {" "}
-                            You are making the bet on {
-                              match.outcomeA.text
-                            } {" "} Vs {match.outcomeB.text}
-                          </div> */}
-                        <div className="text my-1 flex flex-col items-center w-full ">Choose one</div>
-                        <div className="flex w-full flex-row gap-2 flex-1 justify-center my-4">
-                          <div className="btn btn-outline btn-accent">{match.outcomeA.text}</div>
-                          <div className="btn btn-outline btn-accent">{match.outcomeB.text}</div>
-                        </div>
-                        <div className="divider divider-neutral"></div>
-                        <div className="my-3 flex flex-col gap-2">
-                          <div className="mx-2" htmlFor="bet-amount">
-                            Enter the bet amount
-                          </div>
-                          <div className="flex w-full flex-row gap-10">
-                            <label className="input w-full input-bordered flex items-center gap-2">
-                              <input
-                                type="text"
-                                className="w-full"
-                                value={betAmount}
-                                onChange={(e) => setBetAmount(e.target.value)}
-                              />
-                              <p>eth</p>
-                            </label>
-
-                            <label className="input w-full input-bordered flex items-center gap-2">
-                              <input
-                                type="text"
-                                className="w-full"
-                                value={betAmount}
-                                onChange={(e) => setBetAmount(e.target.value)}
-                              />
-                              <select className="select select-sm w-full max-w-xs">
-                                <option disabled selected>
-                                  USD
-                                </option>
-                                <option>INR</option>
-                                <option>Marge</option>
-                                <option>Bart</option>
-                                <option>Lisa</option>
-                                <option>Maggie</option>
-                              </select>
-                            </label>
-                          </div>
-                        </div>
-                        <form method="dialog">
-                          <div className="flex flex-row-reverse ">
-                            <button
-                              className="btn mx-3 btn-primary"
-                              onClick={() => makeBet(match)}
-                            >
-                              Confirm
-                            </button>
-                            <button className="btn mx-3 btn-ghost">Cancel</button>
-                          </div>
-                        </form>
-                      </div>
-                    </dialog>
-                    <div className="divider" />
-                  </li>
-                </>
-              );
-            })}
-          </ul>
+          
         </div>
-        {isAllowed && (
-          <div className="mx-2">
-            <button
-              className="btn"
-              onClick={() => document.getElementById("my_modal_4").showModal()}
-            >
-              + Add Match
-            </button>
-            <dialog id="my_modal_4" className="modal">
-              <div className="modal-box w-11/12 max-w-5xl">
-                <form method="dialog">
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
-                <h3 className="font-bold text-lg">Hello!</h3>
-                <div className="flex flex-col w-full lg:flex-row">
-                  <div className="grid flex-grow h-32 card bg-base-300 rounded-box place-items-center">
-                    take input class A
-                  </div>
-                  <div className="divider lg:divider-horizontal">VS</div>
-                  <div className="grid flex-grow h-32 card bg-base-300 rounded-box place-items-center">
-                    take input class B
-                  </div>
-                </div>
-                <div className="my-2 flex flex-row justify-center">
-                  <form method="dialog">
-                    <button
-                      className="btn"
-                      onClick={() => {
-                        console.log("add the match and close ");
-                      }}
-                    >
-                      Add Match
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </dialog>
-          </div>
-        )}
       </section>
     </>
   );

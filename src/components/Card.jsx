@@ -9,7 +9,7 @@ function Card({id,name,uid,hostedBy,description,status,tags,matches}) {
     <>
       <div
         className="card w-full bg-neutral text-neutral-content shadow-xl cursor-pointer"
-        onClick={() => navigate(`${btoa(id)}`,{state:{id,name,uid,hostedBy,description,status,tags,matches}})}
+        onClick={() => navigate(`/event/${btoa(id)}`,{state:{id,name,uid,hostedBy,description,status,tags,matches}})}
       >
         {/* <figure>
           <img
