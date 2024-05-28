@@ -29,7 +29,6 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/events" element={<Event />} />
             <Route path="/about" element={<About />} />
             <Route path="/notify" element={<Notify />} />
             <Route path="/events" element={<Events />} />
