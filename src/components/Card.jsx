@@ -8,8 +8,8 @@ function Card({id,name,uid,hostedBy,description,status,tags,matches}) {
   return (
     <>
       <div
-        className="card w-full bg-base-100 shadow-xl cursor-pointer"
-        onClick={() => navigate(`events/${btoa(id)}`,{state:{id,name,uid,hostedBy,description,status,tags,matches}})}
+        className="card w-full bg-neutral text-neutral-content shadow-xl cursor-pointer"
+        onClick={() => navigate(`${btoa(id)}`,{state:{id,name,uid,hostedBy,description,status,tags,matches}})}
       >
         {/* <figure>
           <img
@@ -17,12 +17,13 @@ function Card({id,name,uid,hostedBy,description,status,tags,matches}) {
             alt="Shoes"
           />
         </figure> */}
-        <div className="card-body">
-          <h2 className="card-title">
-            {name}
-            <div className="badge badge-secondary">{status}</div>
-            <div className="text">Hosted By: {hostedBy}</div>
-          </h2>
+        <div className="card-body class">
+          <div className="card-title">
+            <h1 className="flex-auto w-75">{name}</h1>
+            <div className="badge badge-secondary "><h1>{status}</h1></div>
+            <div className="text-xs"><h1>Hosted By: {hostedBy}</h1></div>
+          </div>
+          <div className="divider"></div>
           <p>
             {description}
           </p>

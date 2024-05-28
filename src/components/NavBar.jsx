@@ -18,7 +18,7 @@ function NavBar() {
   }
   return (
     <>
-      <div className="navbar bg-base-100 ">
+      <div className="navbar bg-base-300 ">
         <div className="navbar-start">
           <div className="dropdown">
             <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -42,6 +42,9 @@ function NavBar() {
               className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
             >
               <li>
+                <NavLink to={"/events"}>Events</NavLink>
+              </li>
+              <li>
                 <NavLink to={"/about"}>About</NavLink>
               </li>
               <li>
@@ -55,6 +58,9 @@ function NavBar() {
         </div>
         <div className="navbar-center hidden lg:flex">
           <ul className="menu menu-horizontal px-1">
+            <li>
+                <NavLink to={"/events"}>Events</NavLink>
+            </li>
             <li>
               <NavLink to={"/about"}>About</NavLink>
             </li>
@@ -111,7 +117,7 @@ function NavBar() {
                 className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
               >
                 <li>
-                  <p>{user.displayName}</p>
+                  <p><NavLink to={"/profile"}>{user.displayName}</NavLink></p>
                 </li>
                 <li>
                   <a onClick={connectWallet}>{provider?"Connected":"Connect Wallet"}</a>

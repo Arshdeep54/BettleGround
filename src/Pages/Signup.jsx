@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import NavBar from '../components/NavBar';
 import { useUserAuth } from '../context/UserAuthContext';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Signup() {
-  const navigate=useNavigate()
+  const navigate = useNavigate()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [displayName,setDisplayName] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const { user, signUp } = useUserAuth()
   const [error, setError] = useState("");
 
@@ -34,7 +34,7 @@ function Signup() {
               <p className="text-gray-500">Create your account.</p>
             </div>
             <div className="space-y-5">
-            <div className="space-y-2">
+              <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium text-gray-700 tracking-wide">
                   Username
                 </label>
@@ -81,6 +81,12 @@ function Signup() {
                   Sign up
                 </button>
               </div>
+              <p className="mt-2 text-xs text-center text-gray-700 mb-2">
+                Already have an account?{" "}
+                <span className=" text-blue-600 hover:underline">
+                  <Link to="/auth/login">Login</Link>
+                </span>
+              </p>
             </div>
           </div>
         </div>

@@ -36,7 +36,7 @@ function Login() {
   
      <>
       <NavBar />
-      <form onSubmit={handleSubmit}>
+      <form className="my-10" onSubmit={handleSubmit}>
         <div className="flex justify-center self-center  z-10">
           <div className="p-12 bg-white mx-auto rounded-2xl w-100 ">
             <div className="mb-4">
@@ -77,7 +77,8 @@ function Login() {
                 >
                   Sign in
                 </button>
-                <p className="text-gray-500 flex justify-center py-2">OR</p>
+                {error && <Alert variant="danger">{error}</Alert>}
+                <div className="divider text-gray-600  divider-neutral">OR</div>
                 <button
                   type="button"
                   className="w-full flex justify-center bg-green-400 hover:bg-green-500 text-gray-100 p-3 rounded-full tracking-wide font-semibold shadow-lg cursor-pointer transition ease-in duration-500"
@@ -85,6 +86,12 @@ function Login() {
                 >
                   Sign in with Google
                 </button>
+                <p className="mt-2 text-xs text-center text-gray-700 mb-2">
+                New here?{" "}
+                <span className=" text-blue-600 hover:underline">
+                  <Link to="/auth/signup">Signup</Link>
+                </span>
+              </p>
               </div>
               
             </div>
