@@ -1,8 +1,182 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import Card from "../components/Card";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function Home() {
+const [events,setEvents]=useState([])
+const [loading,setLoading]=useState(false)
+useEffect(()=>{
+  const getEvents=()=>{
+    setLoading(true)
+    const eventsArray=[
+      {
+        eventName:"IPL",
+        hostedBy:"Jay Shah",
+        uid:"2zt0bWhT8ofobrG6Oo6MP9kv7aE3",
+        tags:['sports','cricket'],
+        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi itaque recusandae mollitia? Enim mollitia rerum dolores maiores consectetur eius, laudantium modi, in itaque sit nostrum ipsa voluptas nobis reiciendis qui!Aliquam repudiandae ut ratione iste itaque quaerat similique dolorum animi aut tempora ullam nesciunt laudantium consequuntur sequi, dolores in, quo quidem aspernatur, nemo harum explicabo facere quam velit? Saepe, suscipit.Nesciunt ratione pariatur sequi, at architecto ullam non recusandae facere ab consequuntur, nostrum animi. Ut, minima magnam? Suscipit, eligendi. Quasi perferendis voluptates soluta aliquam ipsa error vitae at laboriosam animi.",
+        status:"onGoing",
+        ends:'2024-06-24',
+        matches:[
+          {
+            outcomeA:{text:"RCB",id:1},
+            outcomeB:{text:"CSK",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"PBKS",id:1},
+            outcomeB:{text:"MI",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"DC",id:1},
+            outcomeB:{text:"KKR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"SRH",id:1},
+            outcomeB:{text:"RR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+        ]
+
+      },
+      {
+        eventName:"IPL",
+        hostedBy:"Jay Shah",
+        tags:['sports','cricket'],
+        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi itaque recusandae mollitia? Enim mollitia rerum dolores maiores consectetur eius, laudantium modi, in itaque sit nostrum ipsa voluptas nobis reiciendis qui!Aliquam repudiandae ut ratione iste itaque quaerat similique dolorum animi aut tempora ullam nesciunt laudantium consequuntur sequi, dolores in, quo quidem aspernatur, nemo harum explicabo facere quam velit? Saepe, suscipit.Nesciunt ratione pariatur sequi, at architecto ullam non recusandae facere ab consequuntur, nostrum animi. Ut, minima magnam? Suscipit, eligendi. Quasi perferendis voluptates soluta aliquam ipsa error vitae at laboriosam animi.",
+        status:"onGoing",
+        ends:'2024-06-24',
+        matches:[
+          {
+            outcomeA:{text:"RCB",id:1},
+            outcomeB:{text:"CSK",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"PBKS",id:1},
+            outcomeB:{text:"MI",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"DC",id:1},
+            outcomeB:{text:"KKR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"SRH",id:1},
+            outcomeB:{text:"RR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+        ]
+
+      },{
+        eventName:"IPL",
+        hostedBy:"Jay Shah",
+        tags:['sports','cricket'],
+        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi itaque recusandae mollitia? Enim mollitia rerum dolores maiores consectetur eius, laudantium modi, in itaque sit nostrum ipsa voluptas nobis reiciendis qui!Aliquam repudiandae ut ratione iste itaque quaerat similique dolorum animi aut tempora ullam nesciunt laudantium consequuntur sequi, dolores in, quo quidem aspernatur, nemo harum explicabo facere quam velit? Saepe, suscipit.Nesciunt ratione pariatur sequi, at architecto ullam non recusandae facere ab consequuntur, nostrum animi. Ut, minima magnam? Suscipit, eligendi. Quasi perferendis voluptates soluta aliquam ipsa error vitae at laboriosam animi.",
+        status:"onGoing",
+        ends:'2024-06-24',
+        matches:[
+          {
+            outcomeA:{text:"RCB",id:1},
+            outcomeB:{text:"CSK",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"PBKS",id:1},
+            outcomeB:{text:"MI",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"DC",id:1},
+            outcomeB:{text:"KKR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"SRH",id:1},
+            outcomeB:{text:"RR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+        ]
+
+      },{
+        eventName:"IPL",
+        hostedBy:"Jay Shah",
+        uid:"2zt0bWhT8ofobrG6Oo6MP9kv7aE3",
+        tags:['sports','cricket'],
+        description:"Lorem ipsum dolor sit amet consectetur adipisicing elit. Sequi itaque recusandae mollitia? Enim mollitia rerum dolores maiores consectetur eius, laudantium modi, in itaque sit nostrum ipsa voluptas nobis reiciendis qui!Aliquam repudiandae ut ratione iste itaque quaerat similique dolorum animi aut tempora ullam nesciunt laudantium consequuntur sequi, dolores in, quo quidem aspernatur, nemo harum explicabo facere quam velit? Saepe, suscipit.Nesciunt ratione pariatur sequi, at architecto ullam non recusandae facere ab consequuntur, nostrum animi. Ut, minima magnam? Suscipit, eligendi. Quasi perferendis voluptates soluta aliquam ipsa error vitae at laboriosam animi.",
+        status:"onGoing",
+        ends:'2024-06-24',
+        matches:[
+          {
+            outcomeA:{text:"RCB",id:1},
+            outcomeB:{text:"CSK",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"PBKS",id:1},
+            outcomeB:{text:"MI",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"DC",id:1},
+            outcomeB:{text:"KKR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+          {
+            outcomeA:{text:"SRH",id:1},
+            outcomeB:{text:"RR",id:2},
+            status:"onGoing",
+            resultAnnounced:false,
+            winnerID:null,
+          },
+        ]
+
+      }
+    ]
+    setEvents([...eventsArray])
+  }
+  getEvents();
+},[])
+useEffect(() => {
+  if(events.length>0){
+    setLoading(false)
+  }
+ console.log(events);
+}, [events])
 
   return (
     <>
@@ -31,7 +205,7 @@ function Home() {
                     </form>
                   </div>
                 </div>
-              </dialog>{" "}
+              </dialog>
             </div>
             <label className="input input-bordered flex items-center gap-2">
               <input type="text" className="grow" placeholder="Search" />
@@ -51,55 +225,27 @@ function Home() {
           </div>
         </div>
         <div className="p-2 mx-5 my-3 grid grid-cols-2 gap-5 ">
-          <Card
-            name={"Event-name"}
-            description={
-              "description Lorem ipsum dolor sit amet consectetur adipisicing elit.Sunt beatae, quos earum veniam est minima vero nobis. Laudantiumnatus magni provident blanditiis ea vel ipsa minima, explicabo aliasdolorem voluptate."
-            }
-            status={"onGoing"}
-            tags={["tags", "sports"]}
-          />
+          {loading?
+          (
+            <LoadingSpinner/>
+          )
+          :
+           events.map((event,index)=>{
+              return (<Card
+              id={index}
+              name={event.eventName}
+              uid={event.uid}
+              hostedBy={event.hostedBy}
+              description={event.description}
+              status={event.status}
+              tags={event.tags}
+              matches={event.matches}
+            />)
+            })
+          }
+         
 
-          <Card
-            name={"Event-name"}
-            description={
-              "description Lorem ipsudantiumnatus magni provident blanditiis ea vel ipsa minima, explicabo aliasdolorem voluptate."
-            }
-            status={"onGoing"}
-            tags={["tags", "sports"]}
-          />
-          <Card
-            name={"Event-name"}
-            description={
-              "description Lorem ipsum dolor sit amet consectetur adipisicing elit.Sunt beatae, quos earum veniam est minima vero nobis. Laudantiumnatus magni provident blanditiis ea vel ipsa minima, explicabo aliasdolorem voluptate."
-            }
-            status={"onGoing"}
-            tags={["tags", "weather"]}
-          />
-          <Card
-            name={"Event-name"}
-            description={
-              "descriptdescription Lorem ipsum dolor sit amet consectetur adipisicing elit.Sunt beatae, quos earum veniam est minima vero nobis. Laudantiumnatus magni provident blanditiis ea vel ipsa minima, explicabo aliasdolorem voluptate.description Lorem ipsum dolor sit amet consectetur adipisicing elit.Sunt beatae, quos earum veniam est minima vero nobis. Laudantiumnatus magni provident blanditiis ea vel ipsa minima, explicabo aliasdolorem voluptate.description Lorem ipsum dolor sit amet consectetur adipisicing elit.Sunt beatae, quos earum veniam est minima vero nobis. Laudantiumnatus magni provident blanditiis ea vel ipsa minima, explicabo aliasdolorem voluptate."
-            }
-            status={"onGoing"}
-            tags={["tags", "sports"]}
-          />
-          <Card
-            name={"Event-name"}
-            description={
-              "description Lorem ipsum dolor sit amet consectetur adipisicing elit.Sunt beatae, quos earum veniam est minima vero nobis. Laudantiumnatus magni provident blanditiis ea vel ipsa minima, explicabo aliasdolorem voluptate."
-            }
-            status={"closed"}
-            tags={["tags", "sports"]}
-          />
-          <Card
-            name={"Event-name"}
-            description={
-              "description Lorem ipsum dolor sit amet consectetur adipisicing elit.Sunt beatae, quos earum veniam est minima vero nobis. Laudantiumnatus magni provident blanditiis ea vel ipsa minima, explicabo aliasdolorem voluptate."
-            }
-            status={"closed"}
-            tags={["tags", "sports"]}
-          />
+          
         </div>
       </section>
     </>
