@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useUserAuth } from "../context/UserAuthContext";
 import { ethers } from "ethers";
-
+import DefaultImage from '../assets/defaultprofile.png'
 function NavBar() {
   const { user, logOut } = useUserAuth();
   const [provider, setProvider] = useState(null);
@@ -102,7 +102,7 @@ function NavBar() {
                 <div className="w-10 rounded-full">
                   <img
                     alt="Tailwind CSS Navbar component"
-                    src={user.photoURL}
+                    src={user.photoURL? user.photoURL :DefaultImage}
                   />
                 </div>
               </div>

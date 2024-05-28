@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import NavBar from '../components/NavBar';
 import { useUserAuth } from '../context/UserAuthContext';
+import { useNavigate } from 'react-router-dom';
 
 function Signup() {
+  const navigate=useNavigate()
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName,setDisplayName] = useState("");
