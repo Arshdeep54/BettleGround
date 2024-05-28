@@ -18,6 +18,7 @@ import Signup from "./Pages/Signup";
 import Contact from "./Pages/Contact";
 import About from "./Pages/About";
 import Notify from "./Pages/Notify";
+import Events from "./Pages/Events";
 import Event from "./Pages/Event";
 
 function App() {
@@ -27,9 +28,10 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/events" element={<Event />} />
             <Route path="/about" element={<About />} />
             <Route path="/notify" element={<Notify />} />
-            <Route path="/events/:eventID" element={<Event />} />
+            <Route path="/events/:eventID" element={<Events />} />
             <Route path="/auth/profile" element={<UserProfile />} />
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/signup" element={<Signup />} />

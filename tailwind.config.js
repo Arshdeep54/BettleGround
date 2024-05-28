@@ -22,7 +22,9 @@ export default {
       "cupcake",
       "autumn",
       "coffee",
-      "light","retro"
+      "light",
+      "retro",
+      "forest"
     ],
   },
 };
