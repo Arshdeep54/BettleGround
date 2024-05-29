@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 function Card({id,name,uid,hostedBy,description,status,tags,matches}) {
   
-  console.log(uid)
   const navigate = useNavigate();
   return (
     <>

@@ -1,67 +1,39 @@
-import { ethers } from "ethers";
-import { createContext, useContext, useEffect, useState } from "react";
-import ABI from "../abi/BettingDapp.json";
-import LoadingSpinner from "../components/LoadingSpinner";
+import { ethers } from 'ethers';
+import { createContext, useState, useContext } from 'react';
+
 const web3Context = createContext({
-  contract: null,
-  connected: false,
   provider: null,
-  getContract: () => Promise.reject(),
-  connectWallet: () => Promise.reject(),
+  contract: null,
 });
 
-export function UserWeb3ContextProvider({ children }) {
+export function UserWeb3ContextProvider ({ children })  {
   const [provider, setProvider] = useState(null);
-  const [connected, setConnected] = useState(false);
   const [contract, setContract] = useState(null);
-  const connectWallet = async () => {
-    if (connected) return;
-    if (typeof window.ethereum !== "undefined") {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      console.log(provider);
-      await provider.send("eth_requestAccounts");
-      setProvider(provider);
-      setConnected(true);
 
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(
-        import.meta.env.VITE_CONTRACT_ADDRESS,
-        ABI.abi,
-        signer
-      );
-      console.log(contract);
-      setContract(contract);
-    } else {
-      console.error("Please install a wallet to interact with the blockchain.");
-    }
+  // Functions to initialize provider and contract (replace with your logic)
+  const initializeProvider = async () => {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    setProvider(provider);
   };
 
-  //  useEffect(()=>{
-  //  })
-  const getContract = async () => {
-    await connectWallet();
-    if (connected) {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(
-        import.meta.env.VITE_CONTRACT_ADDRESS,
-        ABI.abi,
-        provider
-      );
-      return contract;
-    }
+  const initializeContract = async (abi, contractAddress) => {
+    const contract = new ethers.Contract(contractAddress, abi, provider);
+    setContract(contract);
   };
 
+  
   return (
     <web3Context.Provider
-      value={{ contract, connected, provider, getContract, connectWallet }}
+      value={{ provider, contract, initializeProvider, initializeContract }}
     >
       {children}
     </web3Context.Provider>
   );
-}
+};
 
 export function useWeb3() {
   return useContext(web3Context);
 }
+
+
+
