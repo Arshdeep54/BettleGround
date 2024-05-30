@@ -113,6 +113,7 @@ function Events() {
             eventInput.eventName,
             eventInput.uid,
             eventInput.tags,
+            eventInput.hostedBy,
             eventInput.description,
             eventInput.status,
             eventInput.endOn
