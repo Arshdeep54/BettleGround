@@ -2,19 +2,22 @@ import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import Card from "../components/Card";
 import LoadingSpinner from "../components/LoadingSpinner";
-import ABI from "../abi/BettingDapp.json";
+import ABI from "../../../hardhatNewversion/artifacts/contracts/Lock.sol/BettingDapp.json";
 import { ethers } from "ethers";
 import { toast } from "react-toastify";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useUserAuth } from "../context/UserAuthContext";
 import TimePicker from "react-time-picker";
 import TimeInput from "react-time-picker/dist/TimeInput";
+import Web3 from "web3";
+import { set } from "firebase/database";
 function Events() {
   const { user } = useUserAuth();
   const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [eventsArray, setEventsArray] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [contract, setContract] = useState(null);
   const [eventInput, setEventInput] = useState({
     eventName: "",
     hostedBy: "",
@@ -40,55 +43,82 @@ function Events() {
   async function getEvents() {
     if (typeof window.ethereum !== "undefined") {
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const contract = new ethers.Contract(
-          import.meta.env.VITE_CONTRACT_ADDRESS,
+        const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
+        const contract = new web3.eth.Contract(
           ABI.abi,
-          provider
+          import.meta.env.VITE_CONTRACT_ADDRESS
         );
-        //whitelist minting
-        const events = await contract.getEvents();
-        setEventsArray(events);
+        console.log(contract);
+        const eventsFromContract = await contract.methods.getEvents().call();
+        console.log(eventsFromContract)
+        const newArrayToAdd = [];
+        setEventsArray([])
+        eventsFromContract.forEach((eventFromContract) => {
+          const newEvent = {
+            eventName: eventFromContract[0],
+            eventID:eventFromContract[1],
+            uid: eventFromContract[2],
+            matches: eventFromContract[3],
+            tags: eventFromContract[4],
+            description: eventFromContract[5],
+            status: eventFromContract[6],
+            endOn: eventFromContract[7],
+          };
+          console.log(newEvent);
+          if (eventsArray.filter((event) => event.uid != newEvent.uid)) {
+            newArrayToAdd.push(newEvent);
+            setEventsArray([...eventsArray,newEvent]);
+          }
+        });
       } catch (error) {
         console.log(error);
-        toast.error("Connect to  Mainnet!", {
-          theme: "dark",
-        });
       }
     } else {
-      toast.error("Install Metamask!", {
-        theme: "dark",
-      });
+      toast.error("Install Metamask!", { theme: "dark" });
     }
   }
+  useEffect(() => {
+    if (contract) {
+      console.log(contract);
+      const listener = (events) => {
+        setEvents(events);
+      };
+      contract.on("GetAllEvents", listener);
+    }
+  }, [contract]);
   async function createEvent() {
     if (typeof window.ethereum !== "undefined") {
-      setEventInput({
-        ...eventInput,
-        uid: user.uid,
-        hostedBy: user.displayName,
-        status: "onGoing",
-      });
-      console.log(eventInput);
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const con = new ethers.Contract(
-          import.meta.env.VITE_CONTRACT_ADDRESS,
+        setEventInput({
+          ...eventInput,
+          uid: user.uid,
+          hostedBy: user.displayName,
+          status: "onGoing",
+        });
+        console.log(eventInput);
+        await ethereum.request({ method: "eth_requestAccounts" });
+        const web3 = new Web3(window.ethereum);
+        // Request the user to connect accounts (Metamask will prompt)
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+
+        // Get the connected accounts
+        const accounts = await web3.eth.getAccounts();
+        const contract = new web3.eth.Contract(
           ABI.abi,
-          signer
+          import.meta.env.VITE_CONTRACT_ADDRESS
         );
-        console.log(con);
-      
-        const createTX = await con.createEvent(
-          eventInput.eventName,
-          eventInput.uid,
-          eventInput.tags,
-          eventInput.description,
-          eventInput.status,
-          eventInput.endOn
-        );
-        await createTX.wait();
+        const events = await contract.methods
+          .createEvent(
+            eventInput.eventName,
+            eventInput.uid,
+            eventInput.tags,
+            eventInput.description,
+            eventInput.status,
+            eventInput.endOn
+          )
+          .send({ from: accounts[0] });
+
+        console.log(events);
         getEvents();
       } catch (error) {
         console.log(error);
@@ -268,8 +298,8 @@ function Events() {
       ];
       setEvents([...eventsArray]);
     };
-    getEventsFake();
     getEvents();
+    getEventsFake();
   }, []);
 
   useEffect(() => {
@@ -441,7 +471,7 @@ function Events() {
           {loading ? (
             <LoadingSpinner />
           ) : (
-            events.map((event, index) => {
+            [...events].map((event, index) => {
               return (
                 <Card
                   id={index}
