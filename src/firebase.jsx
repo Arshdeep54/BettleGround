@@ -4,12 +4,12 @@ import "firebase/database";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_firebase_apiKey,
-  authDomain: import.meta.env.VITE_firebase_authDomain ,
-  projectId: import.meta.env.VITE_firebase_projectId,
-  storageBucket: import.meta.env.VITE_firebase_storageBucket,
-  messagingSenderId:import.meta.env.VITE_firebase_messagingSenderId,
-  appId: import.meta.env.VITE_firebase_appId
+  apiKey: "AIzaSyDnff6EL8Eoyk-P2rRd9N76H1TH4u2hm-8",
+  authDomain: "poolet-2153a.firebaseapp.com",
+  projectId: "poolet-2153a",
+  storageBucket: "poolet-2153a.appspot.com",
+  messagingSenderId: "1042469510348",
+  appId: "1:1042469510348:web:74f3c588ee6930ec283669"
 };
 
 // Initialize Firebase

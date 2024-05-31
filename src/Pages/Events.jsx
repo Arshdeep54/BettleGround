@@ -344,12 +344,13 @@ function Events() {
                     </button>
                   </form>
                   <h3 className="font-bold text-lg">Add New Event </h3>
+                  <div className="divider divider-accent"></div>
                   <form>
                     <div>
-                      <label>Name</label>
+                      <label className="text-xl">Name: </label>
                       <input
                         type="text"
-                        className="input outline-none focus:outline-none mx-3"
+                        className="input input-bordered w-full max-w-xs my-3 mx-3"
                         value={eventInput.eventName}
                         onChange={(e) =>
                           setEventInput({
@@ -361,10 +362,10 @@ function Events() {
                       ></input>
                     </div>
                     <div>
-                      <label>Event Ending on </label>
+                      <label className="text-xl">Event Ending on: </label>
                       <input
                         type="datetime-local"
-                        className="input outline-none focus:outline-none mx-3"
+                        className="input outline-none focus:outline-none my-3 mx-3"
                         value={eventInput.endOn}
                         onChange={(e) =>
                           setEventInput({
@@ -375,11 +376,11 @@ function Events() {
                       ></input>
                     </div>
                     <div>
-                      <label>Enter tags</label>
+                      <label className="text-xl">Enter tags:</label>
 
                       <div className="border-solid rounder-bl border-white p-2 w-max mt-1 flex align-center flex-wrap gap-3">
                         {eventInput.tags.map((tag, index) => (
-                          <div className="bg-primary inline-block p-2 h-max rounded-2xl">
+                          <div className="bg-neutral inline-block p-2 h-max rounded-2xl">
                             <span className="text mx-1">{tag}</span>
                             <span
                               className="close cursor-pointer"
@@ -402,7 +403,7 @@ function Events() {
                       <label>Description</label>
 
                       <textarea
-                        className=" w-full resize-none border-solid p-3 outline-none"
+                        className=" w-full resize-none border-solid p-3 outline-none rounded-xl my-3"
                         value={eventInput.description}
                         onChange={(e) => {
                           setEventInput({
@@ -410,14 +411,14 @@ function Events() {
                             description: e.target.value,
                           });
                         }}
-                        placeholder="Type the description o fthe event"
+                        placeholder="Type the description of the event"
                       />
                     </div>
                   </form>
 
                   <div className="modal-action">
                     <form method="dialog">
-                      <button className="btn" onClick={createEvent}>
+                      <button className="btn btn-primary" onClick={createEvent}>
                         Create
                       </button>
                     </form>
