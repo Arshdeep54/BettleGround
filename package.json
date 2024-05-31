@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "compile":"solcjs --abi --include-path node_modules/ --base-path . blockchain/contracts/BettingDapp.sol --output-dir blockchain/build"
+    "compile": "solcjs --abi --include-path node_modules/ --base-path . blockchain/contracts/BettingDapp.sol --output-dir blockchain/build"
   },
   "dependencies": {
     "ethers": "^5.0.0",

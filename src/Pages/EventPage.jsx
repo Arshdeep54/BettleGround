@@ -1,42 +1,57 @@
 import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
-import { useLocation, useParams } from "react-router-dom";
+import { NavLink, useLocation, useParams } from "react-router-dom";
 import { useUserAuth } from "../context/UserAuthContext";
 import Web3 from "web3";
 import bettingContract from "../../blockchain/Betting";
+import { getETHPrice } from "../../blockchain/priceFeedChainlink";
 
 function EventPage() {
   const { state } = useLocation();
   const [isAllowed, setIsAllowed] = useState(false);
   const { user } = useUserAuth();
   const [betAmount, setBetAmount] = useState(0);
+  const [oneEthToUSD, setOneEthToUsd] = useState(null);
+  const [winner, setWinner] = useState(null);
+  const [bet, setBet] = useState({
+    chosenID: 0,
+    team: "",
+    eventID: null,
+    matchID: null,
+    betAmount: null,
+    betAmountInUSD: null,
+    selectedCurr: "USD",
+  });
   const [web3, setWeb3] = useState(null);
   const [address, setAddress] = useState(null);
   const [matchesArray, setMatchesArray] = useState([]);
   const [betContract, setBetContract] = useState(null);
-console.log(state.id);
+  const [matchInput, setMatchInput] = useState({
+    team1: "",
+    team2: "",
+    matchDate: new Date(),
+  });
+
   const getMatches = async () => {
     try {
       await window.ethereum.request({ method: "eth_requestAccounts" });
 
-      const web3=new Web3(window.ethereum)
-      const eventsFromContract = await bettingContract(web3).methods
-        .getEvents()
+      const web3 = new Web3(window.ethereum);
+      const matchesFromContract = await bettingContract(web3)
+        .methods.getMatches(state.id)
         .call();
-      console.log(eventsFromContract);
+      console.log(matchesFromContract);
       const newArrayToAdd = [];
-      setMatchesArray([]);
-      eventsFromContract.forEach((eventFromContract) => {
+      setMatchesArray(newArrayToAdd);
+      matchesFromContract.forEach((matchFromContract) => {
         const newMatch = {
-          eventName: eventFromContract["name"],
-          eventID: eventFromContract["eventID"],
-          uid: eventFromContract["uid"],
-          matches: eventFromContract["matches"],
-          tags: eventFromContract["tags"],
-          hostedBy: eventFromContract["hostedBy"],
-          description: eventFromContract["description"],
-          status: eventFromContract["status"],
-          endOn: eventFromContract["endDate"],
+          matchID: matchFromContract["matchID"],
+          team1: matchFromContract["side1"],
+          team2: matchFromContract["side2"],
+          status: matchFromContract["status"],
+          resultAnnounced: matchFromContract["resultAnnounced"],
+          winnerID: matchFromContract["winnerID"],
+          duration: matchFromContract["duration"],
         };
         console.log(newMatch);
         newArrayToAdd.push(newMatch);
@@ -47,53 +62,53 @@ console.log(state.id);
     }
   };
 
-  // async function createMatch() {
-  //   const match={
-  //     eventID:state.id,
-  //     matchID:state.matches.length+1,
-  //     sideA:"RCBB",
-  //     sideB:"CSK",
-  //     ID1:1,
-  //     ID2:2,
-  //     duration:(new Date(Date.now())).toString()
-  //   }
-  //   console.log(match)
-  //   if (typeof window.ethereum !== "undefined") {
-  //     try {
-  //       console.log(user);
-  //       await connectWallet();
-  //       if (user) {
-  //         const accounts = await web3.eth.getAccounts();
-  //         console.log(accounts);
-  //         const events = await betContract.methods
-  //           .createEvent(
-  //             eventInput.eventName,
-  //             user.uid,
-  //             eventInput.tags,
-  //             user.displayName,
-  //             eventInput.description,
-  //             "onGoing",
-  //             eventInput.endOn.toString()
-  //           )
-  //           .send({ from: accounts[0] });
-  //         console.log(events);
-  //         getMatches();
-  //       } else {
-  //         console.log("not lggowbev ");
-  //         throw Error("You are not logged in");
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //       toast.error("Connect to  Mainnet!", {
-  //         theme: "dark",
-  //       });
-  //     }
-  //   } else {
-  //     toast.error("Install Metamask!", {
-  //       theme: "dark",
-  //     });
-  //   }
-  // }
+  async function createMatch() {
+    const match = {
+      eventID: state.id,
+      matchID: state.matches.length + 1,
+      sideA: matchInput.team1,
+      sideB: matchInput.team2,
+      ID1: 1,
+      ID2: 2,
+      duration: matchInput.matchDate.toString(),
+    };
+    console.log(match);
+    if (typeof window.ethereum !== "undefined") {
+      try {
+        console.log(user);
+        await connectWallet();
+        if (user) {
+          const accounts = await web3.eth.getAccounts();
+          console.log(accounts);
+          const events = await betContract.methods
+            .createMatch(
+              match.eventID,
+              match.matchID,
+              match.sideA,
+              match.sideB,
+              match.ID1,
+              match.ID2,
+              match.duration
+            )
+            .send({ from: accounts[0] });
+          console.log(events);
+          getMatches();
+        } else {
+          console.log("not lggowbev ");
+          throw Error("You are not logged in");
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error("Connect to  Mainnet!", {
+          theme: "dark",
+        });
+      }
+    } else {
+      toast.error("Install Metamask!", {
+        theme: "dark",
+      });
+    }
+  }
   const connectWallet = async () => {
     if (
       typeof window !== "undefined" &&
@@ -105,6 +120,10 @@ console.log(state.id);
         setWeb3(web3);
         const betCon = bettingContract(web3);
         setBetContract(betCon);
+        const oneEthToUSD = await getETHPrice();
+        setOneEthToUsd(oneEthToUSD);
+        const usdValue = Number(354 * oneEthToUSD).toFixed(2);
+        console.log(usdValue);
       } catch (error) {
         console.log(error.message);
       }
@@ -121,60 +140,99 @@ console.log(state.id);
         setIsAllowed(true);
       }
     }
-  },[]);
+  }, []);
+  useEffect(() => {
+    console.log(bet);
+  }, [bet]);
 
-  const makeBet = (match) => {
+  const makeBet = async (match) => {
     console.log("making bet on ", match);
+    try {
+      if (match.matchID) {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const web3 = new Web3(window.ethereum);
+        const accounts = await web3.eth.getAccounts();
+        await bettingContract(web3)
+          .methods.createBet(state.id, match.matchID, bet.chosenID)
+          .send({
+            from: accounts[0],
+            value: web3.utils.toWei(bet.betAmount.toString(), "ether"),
+          });
+      } else {
+        console.log("match id is null ");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const declareWinner = async (match) => {
+    console.log("declaring  winner for", match);
+    try {
+      if (match.matchID &&(winner==1 ||winner==2)) {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const web3 = new Web3(window.ethereum);
+        const accounts = await web3.eth.getAccounts();
+        const declare=await bettingContract(web3)
+          .methods.declareWinnerAndDistribute(state.id, match.matchID, winner).send({
+            from:accounts[0]
+          });
+          console.log(declare)
+      } else {
+        console.log("match id is null ");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
-  async function createMatch() {
-    if (typeof window.ethereum !== "undefined") {
-        try {
-            setMatchInput({
-                ...matchInput,
-                // Add necessary properties for match creation, e.g., uid, status, etc.
-            });
-            console.log(matchInput);
+  //   async function createMatch() {
+  //     if (typeof window.ethereum !== "undefined") {
+  //         try {
+  //             setMatchInput({
+  //                 ...matchInput,
+  //                 // Add necessary properties for match creation, e.g., uid, status, etc.
+  //             });
+  //             console.log(matchInput);
 
-            // Request user to connect accounts (Metamask will prompt)
-            await window.ethereum.request({ method: "eth_requestAccounts" });
+  //             // Request user to connect accounts (Metamask will prompt)
+  //             await window.ethereum.request({ method: "eth_requestAccounts" });
 
-            // Get the connected accounts
-            const web3 = new Web3(window.ethereum);
-            const accounts = await web3.eth.getAccounts();
+  //             // Get the connected accounts
+  //             const web3 = new Web3(window.ethereum);
+  //             const accounts = await web3.eth.getAccounts();
 
-            // Create a contract instance
-            const contract = new web3.eth.Contract(
-                ABI.abi,
-                import.meta.env.VITE_CONTRACT_ADDRESS
-            );
+  //             // Create a contract instance
+  //             const contract = new web3.eth.Contract(
+  //                 ABI.abi,
+  //                 import.meta.env.VITE_CONTRACT_ADDRESS
+  //             );
 
-            // Call the createMatch function in your smart contract
-            const result = await contract.methods
-                .createMatch(
-                    // Pass necessary parameters for creating a match
-                    matchInput.team1,
-                    matchInput.team2,
-                    matchInput.matchDate
-                )
-                .send({ from: accounts[0] });
+  //             // Call the createMatch function in your smart contract
+  //             const result = await contract.methods
+  //                 .createMatch(
+  //                     // Pass necessary parameters for creating a match
+  //                     matchInput.team1,
+  //                     matchInput.team2,
+  //                     matchInput.matchDate
+  //                 )
+  //                 .send({ from: accounts[0] });
 
-            console.log(result);
+  //             console.log(result);
 
-            // Optionally, update UI or fetch matches again after creation
-            // getMatches();
-        } catch (error) {
-            console.log(error);
-            toast.error("Connect to Mainnet!", {
-                theme: "dark",
-            });
-        }
-    } else {
-        toast.error("Install Metamask!", {
-            theme: "dark",
-        });
-    }
-}
+  //             // Optionally, update UI or fetch matches again after creation
+  //             // getMatches();
+  //         } catch (error) {
+  //             console.log(error);
+  //             toast.error("Connect to Mainnet!", {
+  //                 theme: "dark",
+  //             });
+  //         }
+  //     } else {
+  //         toast.error("Install Metamask!", {
+  //             theme: "dark",
+  //         });
+  //     }
+  // }
 
   return (
     <>
@@ -197,7 +255,7 @@ console.log(state.id);
                 Hosted By: {state.hostedBy}
               </div>
             </h2>
-            <p className="text-s">{state.description}</p>
+            <p className="text-s break-all">{state.description}</p>
             <div className="card-actions justify-end my-4">
               <div className="badge badge-outline">{state.tags[0]}</div>
               <div className="badge badge-outline">{state.tags[1]}</div>
@@ -205,271 +263,331 @@ console.log(state.id);
           </div>
         </div>
         <div className="divider divider-accent"></div>
-        <button className="btn btn-primary" onClick={connectWallet}>Show All Matches</button>
-        <div>
-          <div className="card-title text-xl my-5">Matches </div>
-          <div className="mx-2">
-  <button
-    className="btn"
-    onClick={() => {
-      if (user) {
-        createMatch();
-        document.getElementById("createMatchModal").showModal();
-      } else {
-        document.getElementById("NotLoggedIn").showModal();
-      }
-    }}
-  >
-    + Add Match
-  </button>
-  <dialog id="createMatchModal" className="modal">
-    <div className="modal-box w-11/12 max-w-5xl">
-      <form method="dialog">
-        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-          ✕
-        </button>
-      </form>
-      <h3 className="font-bold text-lg">Add New Match</h3>
-      <div className="divider divider-accent"></div>
-      <form>
-        <div>
-          <label className="text-xl">Team 1:</label>
-          <input
-            type="text"
-            className="input input-bordered w-full max-w-xs my-3 mx-3"
-            value={matchInput.team1}
-            onChange={(e) =>
-              setMatchInput({
-                ...matchInput,
-                team1: e.target.value,
-              })
-            }
-            placeholder="Enter Team 1 name"
-          ></input>
-        </div>
-        <div>
-          <label className="text-xl">Team 2:</label>
-          <input
-            type="text"
-            className="input input-bordered w-full max-w-xs my-3 mx-3"
-            value={matchInput.team2}
-            onChange={(e) =>
-              setMatchInput({
-                ...matchInput,
-                team2: e.target.value,
-              })
-            }
-            placeholder="Enter Team 2 name"
-          ></input>
-        </div>
-        <div>
-          <label className="text-xl">Match Date:</label>
-          <input
-            type="date"
-            className="input outline-none focus:outline-none my-3 mx-3"
-            value={matchInput.matchDate}
-            onChange={(e) =>
-              setMatchInput({
-                ...matchInput,
-                matchDate: e.target.value,
-              })
-            }
-          ></input>
-        </div>
-      </form>
-
-      <div className="modal-action">
-        <form method="dialog">
-          <button className="btn btn-primary" onClick={createMatch}>
-            Create
+        <div className="flex gap-5">
+          <button className="btn btn-primary" onClick={connectWallet}>
+            Show All Matches
           </button>
-        </form>
-      </div>
-    </div>
-  </dialog>
-  <dialog id="NotLoggedIn" className="modal">
-    <div className="modal-box w-11/12 max-w-5xl">
-      <form method="dialog">
-        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-          ✕
-        </button>
-      </form>
-      <h3 className="font-bold text-lg">Sorry ! </h3>
-      <div className="hero">
-        <div className="hero-content text-center">
-          <div className="max-w-md">
-            <h2 className="text-4xl font-bold">
-              You are not logged in!
-            </h2>
-            <p className="py-6">Start your betting journey</p>
-            <form method="dialog">
-              <NavLink to={"/auth/login"}>
-                <button className="btn btn-primary">Login</button>
-              </NavLink>
-            </form>
-          </div>
+          <button
+            className="btn"
+            onClick={() => {
+              if (user) {
+                document.getElementById("createMatchModal").showModal();
+              } else {
+                document.getElementById("NotLoggedIn").showModal();
+              }
+            }}
+          >
+            + Add Match
+          </button>
         </div>
-      </div>
-    </div>
-  </dialog>
-</div>
-          <ul>
-            {state.matches.map((match, index) => {
-              return (
-                <>
-                  <li key={index}>
-                    <div className="flex justify-between">
-                      <div className="badge badge-primary badge-outline py-2 ">
-                        {match.status}
-                      </div>
-                      <span className="countdown font-mono text-2xl right">
-                        <span style={{ "--value": 10 }}></span>:
-                        <span style={{ "--value": 24 }}></span>:
-                        <span style={{ "--value": 51 }}></span>
-                      </span>
-                    </div>
-                    <div className="my-3 flex gap-2 flex-row align-center justify-center">
-                      <div className="flex flex-col w-full lg:flex-row">
-                        <div className="grid w-full h-32 card bg-base-300 rounded-box place-items-center card-title mx-12">
-                          {match.outcomeA.text}
+        <dialog id="createMatchModal" className="modal">
+          <div className="modal-box w-11/12 max-w-5xl">
+            <form method="dialog">
+              <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                ✕
+              </button>
+            </form>
+            <h3 className="font-bold text-lg">Add New Match</h3>
+            <div className="divider divider-accent"></div>
+            <form>
+              <div>
+                <label className="text-xl">Team 1:</label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full max-w-xs my-3 mx-3"
+                  value={matchInput.team1}
+                  onChange={(e) =>
+                    setMatchInput({
+                      ...matchInput,
+                      team1: e.target.value,
+                    })
+                  }
+                  placeholder="Enter Team 1 name"
+                ></input>
+              </div>
+              <div>
+                <label className="text-xl">Team 2:</label>
+                <input
+                  type="text"
+                  className="input input-bordered w-full max-w-xs my-3 mx-3"
+                  value={matchInput.team2}
+                  onChange={(e) =>
+                    setMatchInput({
+                      ...matchInput,
+                      team2: e.target.value,
+                    })
+                  }
+                  placeholder="Enter Team 2 name"
+                ></input>
+              </div>
+              <div>
+                <label className="text-xl">Match Date:</label>
+                <input
+                  type="date"
+                  className="input outline-none focus:outline-none my-3 mx-3"
+                  value={matchInput.matchDate}
+                  onChange={(e) =>
+                    setMatchInput({
+                      ...matchInput,
+                      matchDate: e.target.value,
+                    })
+                  }
+                ></input>
+              </div>
+            </form>
+
+            <div className="modal-action">
+              <form method="dialog">
+                <button className="btn btn-primary" onClick={createMatch}>
+                  Create
+                </button>
+              </form>
+            </div>
+          </div>
+        </dialog>
+        <dialog id="NotLoggedIn" className="modal">
+          <div className="modal-box w-11/12 max-w-5xl">
+            <form method="dialog">
+              <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+                ✕
+              </button>
+            </form>
+            <h3 className="font-bold text-lg">Sorry ! </h3>
+            <div className="hero">
+              <div className="hero-content text-center">
+                <div className="max-w-md">
+                  <h2 className="text-4xl font-bold">You are not logged in!</h2>
+                  <p className="py-6">Start your betting journey</p>
+                  <form method="dialog">
+                    <NavLink to={"/auth/login"}>
+                      <button className="btn btn-primary">Login</button>
+                    </NavLink>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </dialog>
+        <div>
+          {matchesArray && (
+            <div className="card-title text-3xl my-5">Matches </div>
+          )}
+          <div className="mx-2">
+            <ul>
+              {matchesArray.map((match, index) => {
+                return (
+                  <>
+                    <li key={index}>
+                      <div className="flex justify-between">
+                        <div className="badge badge-primary badge-outline py-2 ">
+                          {match.status}
                         </div>
-                        <div className="divider lg:divider-horizontal">VS</div>
-                        <div className="grid w-full h-32 card bg-base-300 rounded-box place-items-center card-title mx-12">
-                          {match.outcomeB.text}
+                        <span className="countdown font-mono text-2xl right">
+                          <span
+                            style={{
+                              "--value": new Date(match.duration).getDate(),
+                            }}
+                          ></span>
+                          :<span style={{ "--value": 24 }}></span>:
+                          <span style={{ "--value": 51 }}></span>
+                        </span>
+                      </div>
+                      <div className="my-3 flex gap-2 flex-row align-center justify-center">
+                        <div className="flex flex-col w-full lg:flex-row">
+                          <div className="grid w-full h-32 card bg-base-300 rounded-box place-items-center card-title mx-12">
+                            {match.team1}
+                          </div>
+                          <div className="divider lg:divider-horizontal">
+                            VS
+                          </div>
+                          <div className="grid w-full h-32 card bg-base-300 rounded-box place-items-center card-title mx-12">
+                            {match.team2}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="w-full flex flex-col items-center">
-                      <button
-                        className="btn btn-wide btn-primary my-4 "
-                        onClick={() =>
-                          document.getElementById("my_modal_4").showModal()
-                        }
-                      >
-                        Bet
-                      </button>
-                    </div>
-                    <dialog id="my_modal_4" className="modal">
-                      <div className="modal-box">
-                        <h3 className="font-bold text-lg my-2">Make bet </h3>
-                        <div className="divider"></div>
-                        {/* <div className="text my-2 flex flex-col items-center w-full">
+                      <div className="w-full flex justify-center items-center align-center gap-2">
+                        <button
+                          className="btn btn-wide btn-primary my-4 "
+                          onClick={() =>
+                            document.getElementById("MakeBetModal").showModal()
+                          }
+                        >
+                          Bet (User)
+                        </button>
+                        <button
+                          className="btn btn-wide btn-primary my-4 "
+                          onClick={() =>
+                            document
+                              .getElementById("declareResultModal")
+                              .showModal()
+                          }
+                        >
+                          declare result (owner)
+                        </button>
+                      </div>
+                      <dialog id="MakeBetModal" className="modal">
+                        <div className="modal-box">
+                          <h3 className="font-bold text-lg my-2">Make bet </h3>
+                          <div className="divider"></div>
+                          {/* <div className="text my-2 flex flex-col items-center w-full">
                             {" "}
                             You are making the bet on {
                               match.outcomeA.text
                             } {" "} Vs {match.outcomeB.text}
                           </div> */}
-                        <div className="text my-1 flex flex-col items-center w-full ">
-                          Choose one
-                        </div>
-                        <div className="flex w-full flex-row gap-2 flex-1 justify-center my-4">
-                          <div className="btn btn-outline btn-accent">
-                            {match.outcomeA.text}
+                          <div className="text my-1 flex flex-col items-center w-full ">
+                            Choose one
                           </div>
-                          <div className="btn btn-outline btn-accent">
-                            {match.outcomeB.text}
-                          </div>
-                        </div>
-                        <div className="divider divider-neutral"></div>
-                        <div className="my-3 flex flex-col gap-2">
-                          <div className="mx-2" htmlFor="bet-amount">
-                            Enter the bet amount
-                          </div>
-                          <div className="flex w-full flex-row gap-10">
-                            <label className="input w-full input-bordered flex items-center gap-2">
-                              <input
-                                type="text"
-                                className="w-full"
-                                value={betAmount}
-                                onChange={(e) => setBetAmount(e.target.value)}
-                              />
-                              <p>eth</p>
-                            </label>
-
-                            <label className="input w-full input-bordered flex items-center gap-2">
-                              <input
-                                type="text"
-                                className="w-full"
-                                value={betAmount}
-                                onChange={(e) => setBetAmount(e.target.value)}
-                              />
-                              <select className="select select-sm w-full max-w-xs">
-                                <option disabled selected>
-                                  USD
-                                </option>
-                                <option>INR</option>
-                                <option>Marge</option>
-                                <option>Bart</option>
-                                <option>Lisa</option>
-                                <option>Maggie</option>
-                              </select>
-                            </label>
-                          </div>
-                        </div>
-                        <form method="dialog">
-                          <div className="flex flex-row-reverse ">
-                            <button
-                              className="btn mx-3 btn-primary"
-                              onClick={() => makeBet(match)}
+                          <div className="flex w-full flex-row gap-2 flex-1 justify-center my-4">
+                            <div
+                              className={` btn btn-outline ${
+                                bet.team === match.team1
+                                  ? "bg-accent text-black"
+                                  : "btn-accent"
+                              }`}
+                              onClick={() =>
+                                setBet({
+                                  ...bet,
+                                  chosenID: 1,
+                                  team: match.team1,
+                                })
+                              }
                             >
-                              Confirm
-                            </button>
-                            <button className="btn mx-3 btn-ghost">
-                              Cancel
-                            </button>
+                              {match.team1}
+                            </div>
+                            <div
+                              className={` btn btn-outline ${
+                                bet.team === match.team2
+                                  ? "bg-accent text-black"
+                                  : "btn-accent "
+                              }`}
+                              onClick={() =>
+                                setBet({
+                                  ...bet,
+                                  chosenID: 2,
+                                  team: match.team2,
+                                })
+                              }
+                            >
+                              {match.team2}
+                            </div>
                           </div>
-                        </form>
-                      </div>
-                    </dialog>
-                    <div className="divider" />
-                  </li>
-                </>
-              );
-            })}
-          </ul>
-        </div>
-        {isAllowed && (
-          <div className="mx-2">
-            <button
-              className="btn"
-              onClick={() => document.getElementById("my_modal_4").showModal()}
-            >
-              + Add Match
-            </button>
-            <dialog id="my_modal_4" className="modal">
-              <div className="modal-box w-11/12 max-w-5xl">
-                <form method="dialog">
-                  <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-                    ✕
-                  </button>
-                </form>
-                <h3 className="font-bold text-lg">Hello!</h3>
-                <div className="flex flex-col w-full lg:flex-row">
-                  <div className="grid flex-grow h-32 card bg-base-300 rounded-box place-items-center">
-                    take input class A
-                  </div>
-                  <div className="divider lg:divider-horizontal">VS</div>
-                  <div className="grid flex-grow h-32 card bg-base-300 rounded-box place-items-center">
-                    take input class B
-                  </div>
-                </div>
-                <div className="my-2 flex flex-row justify-center">
-                  <form method="dialog">
-                    <button
-                      className="btn"
-                      onClick={() => {
-                        console.log("adding...");
-                        // createMatch()
-                      }}
-                    >
-                      Add Match
-                    </button>
-                  </form>
-                </div>
-              </div>
-            </dialog>
+                          <div className="divider divider-neutral"></div>
+                          <div className="my-3 flex flex-col gap-2">
+                            <div className="mx-2" htmlFor="bet-amount">
+                              Enter the bet amount
+                            </div>
+                            <div className="flex w-full flex-row gap-10">
+                              <label className="input w-full input-bordered flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  className="w-full"
+                                  value={bet.betAmount}
+                                  onChange={(e) =>
+                                    setBet({
+                                      ...bet,
+                                      betAmount: e.target.value,
+                                      betAmountInUSD:
+                                        Number(e.target.value) * oneEthToUSD,
+                                    })
+                                  }
+                                />
+                                <p>eth</p>
+                              </label>
+
+                              <label className="input w-full input-bordered flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  className="w-full"
+                                  value={bet.betAmountInUSD}
+                                  onChange={(e) =>
+                                    setBet({
+                                      ...bet,
+                                      betAmount:
+                                        Number(e.target.value) / oneEthToUSD,
+                                      betAmountInUSD: e.target.value,
+                                    })
+                                  }
+                                />
+                                USD
+                              </label>
+                            </div>
+                          </div>
+                          <form method="dialog">
+                            <div className="flex flex-row-reverse ">
+                              <button
+                                className="btn mx-3 btn-primary"
+                                onClick={() => makeBet(match)}
+                              >
+                                Confirm
+                              </button>
+                              <button className="btn mx-3 btn-ghost">
+                                Cancel
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </dialog>
+                      <dialog id="declareResultModal" className="modal">
+                        <div className="modal-box">
+                          <h3 className="font-bold text-lg my-2">Make bet </h3>
+                          <div className="divider"></div>
+                          {/* <div className="text my-2 flex flex-col items-center w-full">
+                            {" "}
+                            You are making the bet on {
+                              match.outcomeA.text
+                            } {" "} Vs {match.outcomeB.text}
+                          </div> */}
+                          <div className="text my-1 flex flex-col items-center w-full ">
+                            Choose one
+                          </div>
+                          <div className="flex w-full flex-row gap-2 flex-1 justify-center my-4">
+                            <div
+                              className={` btn btn-outline ${
+                                bet.team === match.team1
+                                  ? "bg-accent text-black"
+                                  : "btn-accent"
+                              }`}
+                              onClick={() => setWinner(1)}
+                            >
+                              {match.team1}
+                            </div>
+                            <div
+                              className={` btn btn-outline ${
+                                bet.team === match.team2
+                                  ? "bg-accent text-black"
+                                  : "btn-accent "
+                              }`}
+                              onClick={() => setWinner(2)}
+                            >
+                              {match.team2}
+                            </div>
+                          </div>
+                          <div className="divider divider-neutral"></div>
+                          <p> You chose {winner}</p>
+                          <form method="dialog">
+                            <div className="flex flex-row-reverse ">
+                              <button
+                                className="btn mx-3 btn-primary"
+                                onClick={() => declareWinner(match)}
+                              >
+                                Confirm
+                              </button>
+                              <button className="btn mx-3 btn-ghost">
+                                Cancel
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </dialog>
+                      <div className="divider" />
+                    </li>
+                  </>
+                );
+              })}
+            </ul>
           </div>
-        )}
+        </div>
       </section>
     </>
   );

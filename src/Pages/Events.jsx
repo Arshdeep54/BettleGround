@@ -293,7 +293,7 @@ function Events() {
       setEvents([...eventsArray]);
     };
     if (betContract) getEvents();
-    // getEventsFake();
+    getEventsFake();
   }, [betContract]);
 
  
@@ -458,10 +458,10 @@ function Events() {
           {loading ? (
             <LoadingSpinner />
           ) : (
-            [...eventsArray].map((event, index) => {
+            [...events,...eventsArray].map((event, index) => {
               return (
                 <Card
-                  id={index}
+                  id={event.eventID}
                   name={event.eventName}
                   uid={event.uid}
                   hostedBy={event.hostedBy}

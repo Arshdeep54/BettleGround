@@ -16,14 +16,14 @@ function Card({id,name,uid,hostedBy,description,status,tags,matches}) {
             alt="Shoes"
           />
         </figure> */}
-        <div className="card-body class">
+        <div className="card-body class overflow-hidden">
           <div className="card-title">
             <h1 className="flex-auto w-75">{name}</h1>
             <div className="badge badge-secondary "><h1>{status}</h1></div>
             <div className="text-xs"><h1>Hosted By: {hostedBy}</h1></div>
           </div>
           <div className="divider"></div>
-          <p>
+          <p className="text-wrap break-all">
             {description}
           </p>
           <div className="card-actions justify-end">

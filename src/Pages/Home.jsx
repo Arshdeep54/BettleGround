@@ -50,8 +50,8 @@ function Home() {
     <>
       <NavBar />
       {isLoggedIn ? <>
-  <div className="hero min-h-screen bg-base-200 relative">
-    <div className="hero-content text-center">
+  <div className="hero min-h-screen bg-base-200 ">
+    <div className="hero-content text-center flex ">
       <div className="max-w-md">
         <h1 className="text-5xl font-bold">Welcome {user.displayName}</h1>
         <p className="py-6">Lets head over to win something!</p>
@@ -59,15 +59,15 @@ function Home() {
           <NavLink to={"/events"}>Make your bets!</NavLink>
         </button>
       </div>
-    </div>
-  </div>
-  <div className="absolute z-10 bottom-0  left-0 right-0  flex justify-center">
+  <div className="flex justify-center">
     
     <div className="flex flex-col">
       {features.map((feature, index) => (
         <FeatureCard key={feature.id} {...feature} index={index} />
       ))}
     </div>
+    </div>
+  </div>
   </div>
 </>
        
