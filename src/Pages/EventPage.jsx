@@ -2,19 +2,127 @@ import React, { useEffect, useState } from "react";
 import NavBar from "../components/NavBar";
 import { useLocation, useParams } from "react-router-dom";
 import { useUserAuth } from "../context/UserAuthContext";
+import Web3 from "web3";
+import bettingContract from "../../blockchain/Betting";
 
 function EventPage() {
   const { state } = useLocation();
   const [isAllowed, setIsAllowed] = useState(false);
   const { user } = useUserAuth();
   const [betAmount, setBetAmount] = useState(0);
+  const [web3, setWeb3] = useState(null);
+  const [address, setAddress] = useState(null);
+  const [matchesArray, setMatchesArray] = useState([]);
+  const [betContract, setBetContract] = useState(null);
+console.log(state.id);
+  const getMatches = async () => {
+    try {
+      await window.ethereum.request({ method: "eth_requestAccounts" });
+
+      const web3=new Web3(window.ethereum)
+      const eventsFromContract = await bettingContract(web3).methods
+        .getEvents()
+        .call();
+      console.log(eventsFromContract);
+      const newArrayToAdd = [];
+      setMatchesArray([]);
+      eventsFromContract.forEach((eventFromContract) => {
+        const newMatch = {
+          eventName: eventFromContract["name"],
+          eventID: eventFromContract["eventID"],
+          uid: eventFromContract["uid"],
+          matches: eventFromContract["matches"],
+          tags: eventFromContract["tags"],
+          hostedBy: eventFromContract["hostedBy"],
+          description: eventFromContract["description"],
+          status: eventFromContract["status"],
+          endOn: eventFromContract["endDate"],
+        };
+        console.log(newMatch);
+        newArrayToAdd.push(newMatch);
+      });
+      setMatchesArray([...matchesArray, ...newArrayToAdd]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // async function createMatch() {
+  //   const match={
+  //     eventID:state.id,
+  //     matchID:state.matches.length+1,
+  //     sideA:"RCBB",
+  //     sideB:"CSK",
+  //     ID1:1,
+  //     ID2:2,
+  //     duration:(new Date(Date.now())).toString()
+  //   }
+  //   console.log(match)
+  //   if (typeof window.ethereum !== "undefined") {
+  //     try {
+  //       console.log(user);
+  //       await connectWallet();
+  //       if (user) {
+  //         const accounts = await web3.eth.getAccounts();
+  //         console.log(accounts);
+  //         const events = await betContract.methods
+  //           .createEvent(
+  //             eventInput.eventName,
+  //             user.uid,
+  //             eventInput.tags,
+  //             user.displayName,
+  //             eventInput.description,
+  //             "onGoing",
+  //             eventInput.endOn.toString()
+  //           )
+  //           .send({ from: accounts[0] });
+  //         console.log(events);
+  //         getMatches();
+  //       } else {
+  //         console.log("not lggowbev ");
+  //         throw Error("You are not logged in");
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //       toast.error("Connect to  Mainnet!", {
+  //         theme: "dark",
+  //       });
+  //     }
+  //   } else {
+  //     toast.error("Install Metamask!", {
+  //       theme: "dark",
+  //     });
+  //   }
+  // }
+  const connectWallet = async () => {
+    if (
+      typeof window !== "undefined" &&
+      typeof window.ethereum !== "undefined"
+    ) {
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const web3 = new Web3(window.ethereum);
+        setWeb3(web3);
+        const betCon = bettingContract(web3);
+        setBetContract(betCon);
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
+  };
+  useEffect(() => {
+    if (betContract) {
+      getMatches();
+    }
+  }, [betContract]);
   useEffect(() => {
     if (user) {
       if (state.uid == user.uid) {
         setIsAllowed(true);
       }
     }
-  }, []);
+  },[]);
+
   const makeBet = (match) => {
     console.log("making bet on ", match);
   };
@@ -30,12 +138,14 @@ function EventPage() {
       <section className="mx-12 my-5">
         <div className=" w-full bg-base-100 my-3">
           <div className="">
-            <h2 className="card-title text-xl my-2">
-              {state.name}
-            </h2>
+            <h2 className="card-title text-xl my-2">{state.name}</h2>
             <h2>
-              <div className="badge badge-secondary badge-outline right-100 my-2">{state.status}</div>
-              <div className="card-title text-xl my-2">Hosted By: {state.hostedBy}</div>
+              <div className="badge badge-secondary badge-outline right-100 my-2">
+                {state.status}
+              </div>
+              <div className="card-title text-xl my-2">
+                Hosted By: {state.hostedBy}
+              </div>
             </h2>
             <p className="text-s">{state.description}</p>
             <div className="card-actions justify-end my-4">
@@ -45,6 +155,7 @@ function EventPage() {
           </div>
         </div>
         <div className="divider divider-accent"></div>
+        <button className="btn btn-primary" onClick={connectWallet}>Show All Matches</button>
         <div>
           <div className="card-title text-xl my-5">Matches </div>
           <ul>
@@ -53,7 +164,9 @@ function EventPage() {
                 <>
                   <li key={index}>
                     <div className="flex justify-between">
-                      <div className="badge badge-primary badge-outline py-2 ">{match.status}</div>
+                      <div className="badge badge-primary badge-outline py-2 ">
+                        {match.status}
+                      </div>
                       <span className="countdown font-mono text-2xl right">
                         <span style={{ "--value": 10 }}></span>:
                         <span style={{ "--value": 24 }}></span>:
@@ -70,7 +183,6 @@ function EventPage() {
                           {match.outcomeB.text}
                         </div>
                       </div>
-
                     </div>
                     <div className="w-full flex flex-col items-center">
                       <button
@@ -92,10 +204,16 @@ function EventPage() {
                               match.outcomeA.text
                             } {" "} Vs {match.outcomeB.text}
                           </div> */}
-                        <div className="text my-1 flex flex-col items-center w-full ">Choose one</div>
+                        <div className="text my-1 flex flex-col items-center w-full ">
+                          Choose one
+                        </div>
                         <div className="flex w-full flex-row gap-2 flex-1 justify-center my-4">
-                          <div className="btn btn-outline btn-accent">{match.outcomeA.text}</div>
-                          <div className="btn btn-outline btn-accent">{match.outcomeB.text}</div>
+                          <div className="btn btn-outline btn-accent">
+                            {match.outcomeA.text}
+                          </div>
+                          <div className="btn btn-outline btn-accent">
+                            {match.outcomeB.text}
+                          </div>
                         </div>
                         <div className="divider divider-neutral"></div>
                         <div className="my-3 flex flex-col gap-2">
@@ -141,7 +259,9 @@ function EventPage() {
                             >
                               Confirm
                             </button>
-                            <button className="btn mx-3 btn-ghost">Cancel</button>
+                            <button className="btn mx-3 btn-ghost">
+                              Cancel
+                            </button>
                           </div>
                         </form>
                       </div>
@@ -183,7 +303,8 @@ function EventPage() {
                     <button
                       className="btn"
                       onClick={() => {
-                        console.log("add the match and close ");
+                        console.log("adding...");
+                        // createMatch()
                       }}
                     >
                       Add Match

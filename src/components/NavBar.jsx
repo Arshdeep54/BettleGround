@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import DefaultImage from "../assets/defaultprofile.png";
 import { useWeb3 } from "../context/web3Contex";
 import { Bounce, Slide, ToastContainer, toast } from "react-toastify";
+import Web3 from "web3";
 function NavBar() {
   const { user, logOut } = useUserAuth();
   const { provider } = useWeb3();
@@ -16,31 +17,13 @@ function NavBar() {
   const [loading, setLoading] = useState(false);
   async function connectWallet() {
     if (typeof window.ethereum !== "undefined") {
-      const chainId = await window.ethereum.request({ method: "eth_chainId" });
-      console.log(chainId);
-
-      // TO CONNECT TO MAINNET
-      // if (chainId !== '0x1') {
-      //     await window.ethereum.request({
-      //         method: 'wallet_switchEthereumChain',
-      //         params: [{ chainId: '0x1' }],
-      //     })
-      // }
-      const accounts = await ethereum.request({
-        method: "eth_requestAccounts",
-      });
-
-      
-      console.log(accounts[0]);
-      setLoading(true);
-      setConnected(true);
-      setLoading(false);
-      setCurrentAcc(accounts[0]);
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = await provider.getSigner();
-      const signerAddress = await signer.getAddress();
-      setSigner(signer);
-      setSignerAddress(signerAddress);
+      try{
+        await window.ethereum.request({method:"eth_requestAccounts"})
+        const web3=new Web3(window.ethereum)
+        setConnected(true)
+      }catch(err){
+        console.log(err.message)
+      }
     } else {
       toast.error("Please install Metamask wallet in this browser", {
         theme: "dark",

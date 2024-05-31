@@ -12,6 +12,7 @@ import TimePicker from "react-time-picker";
 import TimeInput from "react-time-picker/dist/TimeInput";
 import Web3 from "web3";
 import { set } from "firebase/database";
+import bettingContract from "../../blockchain/Betting";
 function Events() {
   const { user } = useUserAuth();
   const navigate = useNavigate();
@@ -19,6 +20,10 @@ function Events() {
   const [eventsArray, setEventsArray] = useState([]);
   const [loading, setLoading] = useState(false);
   const [contract, setContract] = useState(null);
+  const [web3, setWeb3] = useState(null);
+  const [address, setAddress] = useState(null);
+
+  const [betContract, setBetContract] = useState(null);
   const [eventInput, setEventInput] = useState({
     eventName: "",
     hostedBy: "",
@@ -41,87 +46,58 @@ function Events() {
       tags: eventInput.tags.filter((el, i) => i !== index),
     });
   }
-  async function getEvents() {
-    if (typeof window.ethereum !== "undefined") {
-      try {
-        const web3 = new Web3(Web3.givenProvider || "http://localhost:8545");
-        const contract = new web3.eth.Contract(
-          ABI.abi,
-          import.meta.env.VITE_CONTRACT_ADDRESS
-        );
-        console.log(contract);
-        const eventsFromContract = await contract.methods.getEvents().call();
-        console.log(eventsFromContract)
-        const newArrayToAdd = [];
-        setEventsArray([])
-        eventsFromContract.forEach((eventFromContract) => {
-          const newEvent = {
-            eventName: eventFromContract[0],
-            eventID:eventFromContract[1],
-            uid: eventFromContract[2],
-            matches: eventFromContract[3],
-            tags: eventFromContract[4],
-            description: eventFromContract[5],
-            status: eventFromContract[6],
-            endOn: eventFromContract[7],
-          };
-          console.log(newEvent);
-          if (eventsArray.filter((event) => event.uid != newEvent.uid)) {
-            newArrayToAdd.push(newEvent);
-            setEventsArray([...eventsArray,newEvent]);
-          }
-        });
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      toast.error("Install Metamask!", { theme: "dark" });
+  const getEvents = async () => {
+    try {
+      const eventsFromContract = await betContract.methods.getEvents().call();
+      console.log(eventsFromContract);
+      const newArrayToAdd = [];
+      setEventsArray([]);
+      eventsFromContract.forEach((eventFromContract) => {
+        const newEvent = {
+          eventName: eventFromContract["name"],
+          eventID: eventFromContract["eventID"],
+          uid: eventFromContract["uid"],
+          matches: eventFromContract["matches"],
+          tags: eventFromContract["tags"],
+          hostedBy: eventFromContract["hostedBy"],
+          description: eventFromContract["description"],
+          status: eventFromContract["status"],
+          endOn: eventFromContract["endDate"],
+        };
+        console.log(newEvent);
+        newArrayToAdd.push(newEvent);
+      });
+      setEventsArray([...eventsArray, ...newArrayToAdd]);
+    } catch (error) {
+      console.log(error);
     }
-  }
-  useEffect(() => {
-    if (contract) {
-      console.log(contract);
-      const listener = (events) => {
-        setEvents(events);
-      };
-      contract.on("GetAllEvents", listener);
-    }
-  }, [contract]);
+  };
+
   async function createEvent() {
     if (typeof window.ethereum !== "undefined") {
       try {
-        setEventInput({
-          ...eventInput,
-          uid: user.uid,
-          hostedBy: user.displayName,
-          status: "onGoing",
-        });
-        console.log(eventInput);
-        await ethereum.request({ method: "eth_requestAccounts" });
-        const web3 = new Web3(window.ethereum);
-        // Request the user to connect accounts (Metamask will prompt)
-        await window.ethereum.request({ method: "eth_requestAccounts" });
-
-        // Get the connected accounts
-        const accounts = await web3.eth.getAccounts();
-        const contract = new web3.eth.Contract(
-          ABI.abi,
-          import.meta.env.VITE_CONTRACT_ADDRESS
-        );
-        const events = await contract.methods
-          .createEvent(
-            eventInput.eventName,
-            eventInput.uid,
-            eventInput.tags,
-            eventInput.hostedBy,
-            eventInput.description,
-            eventInput.status,
-            eventInput.endOn
-          )
-          .send({ from: accounts[0] });
-
-        console.log(events);
-        getEvents();
+        console.log(user);
+        await connectWallet();
+        if (user) {
+          const accounts = await web3.eth.getAccounts();
+          console.log(accounts);
+          const events = await betContract.methods
+            .createEvent(
+              eventInput.eventName,
+              user.uid,
+              eventInput.tags,
+              user.displayName,
+              eventInput.description,
+              "onGoing",
+              eventInput.endOn.toString()
+            )
+            .send({ from: accounts[0] });
+          console.log(events);
+          getEvents();
+        } else {
+          console.log("not lggowbev ");
+          throw Error("You are not logged in");
+        }
       } catch (error) {
         console.log(error);
         toast.error("Connect to  Mainnet!", {
@@ -134,10 +110,26 @@ function Events() {
       });
     }
   }
-
+ const connectWallet = async () => {
+    if (
+      typeof window !== "undefined" &&
+      typeof window.ethereum !== "undefined"
+    ) {
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const web3 = new Web3(window.ethereum);
+        setWeb3(web3);
+        const accounts = await web3.eth.getAccounts();
+        setAddress(accounts[0]);
+        const betCon = bettingContract(web3);
+        setBetContract(betCon);
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
+  };
   useEffect(() => {
     const getEventsFake = () => {
-      setLoading(true);
       const eventsArray = [
         {
           eventName: "IPL",
@@ -300,25 +292,18 @@ function Events() {
       ];
       setEvents([...eventsArray]);
     };
-    getEvents();
-    getEventsFake();
-  }, []);
+    if (betContract) getEvents();
+    // getEventsFake();
+  }, [betContract]);
 
-  useEffect(() => {
-    if (events.length > 0) {
-      setLoading(false);
-    }
-    console.log(events);
-  }, [events]);
-
-  useEffect(() => {
-    console.log(eventsArray);
-  }, [eventsArray]);
-
+ 
   return (
     <>
       <NavBar />
       <section className="eventSection my-5 mx-12">
+        <button className="btn btn-primary" onClick={connectWallet}>
+          Connect Wallet
+        </button>
         <div className="mx-5 flex justify-between items-center flex-row">
           <div className="text-6xl card-title m-4">Events</div>
           <div className="flex item-center flex-row">
@@ -327,7 +312,6 @@ function Events() {
                 className="btn"
                 onClick={() => {
                   if (user) {
-                    createEvent();
                     document.getElementById("createEventModal").showModal();
                   } else {
                     document.getElementById("NotLoggedIn").showModal();
@@ -417,7 +401,7 @@ function Events() {
 
                   <div className="modal-action">
                     <form method="dialog">
-                      <button className="btn" onClick={createEvent}>
+                      <button className="btn" onClick={() => createEvent()}>
                         Create
                       </button>
                     </form>
@@ -473,7 +457,7 @@ function Events() {
           {loading ? (
             <LoadingSpinner />
           ) : (
-            [...events].map((event, index) => {
+            [...eventsArray].map((event, index) => {
               return (
                 <Card
                   id={index}
