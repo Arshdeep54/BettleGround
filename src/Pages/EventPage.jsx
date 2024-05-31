@@ -126,6 +126,56 @@ console.log(state.id);
   const makeBet = (match) => {
     console.log("making bet on ", match);
   };
+
+  async function createMatch() {
+    if (typeof window.ethereum !== "undefined") {
+        try {
+            setMatchInput({
+                ...matchInput,
+                // Add necessary properties for match creation, e.g., uid, status, etc.
+            });
+            console.log(matchInput);
+
+            // Request user to connect accounts (Metamask will prompt)
+            await window.ethereum.request({ method: "eth_requestAccounts" });
+
+            // Get the connected accounts
+            const web3 = new Web3(window.ethereum);
+            const accounts = await web3.eth.getAccounts();
+
+            // Create a contract instance
+            const contract = new web3.eth.Contract(
+                ABI.abi,
+                import.meta.env.VITE_CONTRACT_ADDRESS
+            );
+
+            // Call the createMatch function in your smart contract
+            const result = await contract.methods
+                .createMatch(
+                    // Pass necessary parameters for creating a match
+                    matchInput.team1,
+                    matchInput.team2,
+                    matchInput.matchDate
+                )
+                .send({ from: accounts[0] });
+
+            console.log(result);
+
+            // Optionally, update UI or fetch matches again after creation
+            // getMatches();
+        } catch (error) {
+            console.log(error);
+            toast.error("Connect to Mainnet!", {
+                theme: "dark",
+            });
+        }
+    } else {
+        toast.error("Install Metamask!", {
+            theme: "dark",
+        });
+    }
+}
+
   return (
     <>
       <NavBar />
@@ -158,6 +208,111 @@ console.log(state.id);
         <button className="btn btn-primary" onClick={connectWallet}>Show All Matches</button>
         <div>
           <div className="card-title text-xl my-5">Matches </div>
+          <div className="mx-2">
+  <button
+    className="btn"
+    onClick={() => {
+      if (user) {
+        createMatch();
+        document.getElementById("createMatchModal").showModal();
+      } else {
+        document.getElementById("NotLoggedIn").showModal();
+      }
+    }}
+  >
+    + Add Match
+  </button>
+  <dialog id="createMatchModal" className="modal">
+    <div className="modal-box w-11/12 max-w-5xl">
+      <form method="dialog">
+        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+          ✕
+        </button>
+      </form>
+      <h3 className="font-bold text-lg">Add New Match</h3>
+      <div className="divider divider-accent"></div>
+      <form>
+        <div>
+          <label className="text-xl">Team 1:</label>
+          <input
+            type="text"
+            className="input input-bordered w-full max-w-xs my-3 mx-3"
+            value={matchInput.team1}
+            onChange={(e) =>
+              setMatchInput({
+                ...matchInput,
+                team1: e.target.value,
+              })
+            }
+            placeholder="Enter Team 1 name"
+          ></input>
+        </div>
+        <div>
+          <label className="text-xl">Team 2:</label>
+          <input
+            type="text"
+            className="input input-bordered w-full max-w-xs my-3 mx-3"
+            value={matchInput.team2}
+            onChange={(e) =>
+              setMatchInput({
+                ...matchInput,
+                team2: e.target.value,
+              })
+            }
+            placeholder="Enter Team 2 name"
+          ></input>
+        </div>
+        <div>
+          <label className="text-xl">Match Date:</label>
+          <input
+            type="date"
+            className="input outline-none focus:outline-none my-3 mx-3"
+            value={matchInput.matchDate}
+            onChange={(e) =>
+              setMatchInput({
+                ...matchInput,
+                matchDate: e.target.value,
+              })
+            }
+          ></input>
+        </div>
+      </form>
+
+      <div className="modal-action">
+        <form method="dialog">
+          <button className="btn btn-primary" onClick={createMatch}>
+            Create
+          </button>
+        </form>
+      </div>
+    </div>
+  </dialog>
+  <dialog id="NotLoggedIn" className="modal">
+    <div className="modal-box w-11/12 max-w-5xl">
+      <form method="dialog">
+        <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+          ✕
+        </button>
+      </form>
+      <h3 className="font-bold text-lg">Sorry ! </h3>
+      <div className="hero">
+        <div className="hero-content text-center">
+          <div className="max-w-md">
+            <h2 className="text-4xl font-bold">
+              You are not logged in!
+            </h2>
+            <p className="py-6">Start your betting journey</p>
+            <form method="dialog">
+              <NavLink to={"/auth/login"}>
+                <button className="btn btn-primary">Login</button>
+              </NavLink>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </dialog>
+</div>
           <ul>
             {state.matches.map((match, index) => {
               return (
