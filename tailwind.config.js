@@ -6,6 +6,7 @@ export default {
   theme: {
     extend: {},
   },
+  important:true,
   plugins: [daisyui],
   daisyui: {
     themes: [

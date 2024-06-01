@@ -110,7 +110,7 @@ function Events() {
       });
     }
   }
- const connectWallet = async () => {
+  const connectWallet = async () => {
     if (
       typeof window !== "undefined" &&
       typeof window.ethereum !== "undefined"
@@ -296,13 +296,17 @@ function Events() {
     getEventsFake();
   }, [betContract]);
 
- 
   return (
     <>
       <NavBar />
       <section className="eventSection my-5 mx-12">
-        <button className="btn btn-primary" onClick={connectWallet}>
-          Connect Wallet
+        <button
+          className="btn btn-primary"
+          onClick={() => {
+            !web3 && connectWallet();
+          }}
+        >
+          {web3 ? "Connected" : "Connect Wallet"}
         </button>
         <div className="mx-5 flex justify-between items-center flex-row">
           <div className="text-6xl card-title m-4">Events</div>
@@ -457,8 +461,12 @@ function Events() {
         <div className="p-2 mx-5 my-3 grid grid-cols-2 gap-5 ">
           {loading ? (
             <LoadingSpinner />
+          ) : eventsArray.length == 0 ? (
+            <div className="text-2xl w-full items-center flex ">
+              Connect the Wallet to see all Events
+            </div>
           ) : (
-            [...events,...eventsArray].map((event, index) => {
+            [...eventsArray].map((event, index) => {
               return (
                 <Card
                   id={event.eventID}

@@ -5,6 +5,7 @@ import { useUserAuth } from "../context/UserAuthContext";
 import Web3 from "web3";
 import bettingContract from "../../blockchain/Betting";
 import { getETHPrice } from "../../blockchain/priceFeedChainlink";
+import { toast } from "react-toastify";
 
 function EventPage() {
   const { state } = useLocation();
@@ -13,6 +14,8 @@ function EventPage() {
   const [betAmount, setBetAmount] = useState(0);
   const [oneEthToUSD, setOneEthToUsd] = useState(null);
   const [winner, setWinner] = useState(null);
+  const [addMatchError, setAddMatchError] = useState(null);
+  const [address, setAddress] = useState(null);
   const [bet, setBet] = useState({
     chosenID: 0,
     team: "",
@@ -23,7 +26,6 @@ function EventPage() {
     selectedCurr: "USD",
   });
   const [web3, setWeb3] = useState(null);
-  const [address, setAddress] = useState(null);
   const [matchesArray, setMatchesArray] = useState([]);
   const [betContract, setBetContract] = useState(null);
   const [matchInput, setMatchInput] = useState({
@@ -48,7 +50,7 @@ function EventPage() {
           matchID: matchFromContract["matchID"],
           team1: matchFromContract["side1"],
           team2: matchFromContract["side2"],
-          status: matchFromContract["status"],
+          status: matchFromContract["resultAnnounced"]?"ended":"onGoing",
           resultAnnounced: matchFromContract["resultAnnounced"],
           winnerID: matchFromContract["winnerID"],
           duration: matchFromContract["duration"],
@@ -57,6 +59,7 @@ function EventPage() {
         newArrayToAdd.push(newMatch);
       });
       setMatchesArray([...matchesArray, ...newArrayToAdd]);
+      console.log(bettingContract(web3));
     } catch (error) {
       console.log(error);
     }
@@ -76,8 +79,11 @@ function EventPage() {
     if (typeof window.ethereum !== "undefined") {
       try {
         console.log(user);
-        await connectWallet();
+
         if (user) {
+          await window.ethereum.request({ method: "eth_requestAccounts" });
+          const web3 = new Web3(window.ethereum);
+          setWeb3(web3);
           const accounts = await web3.eth.getAccounts();
           console.log(accounts);
           const events = await betContract.methods
@@ -92,14 +98,14 @@ function EventPage() {
             )
             .send({ from: accounts[0] });
           console.log(events);
-          getMatches();
+          await getMatches();
         } else {
           console.log("not lggowbev ");
           throw Error("You are not logged in");
         }
       } catch (error) {
         console.log(error);
-        toast.error("Connect to  Mainnet!", {
+        toast.error(error.message, {
           theme: "dark",
         });
       }
@@ -118,6 +124,10 @@ function EventPage() {
         await window.ethereum.request({ method: "eth_requestAccounts" });
         const web3 = new Web3(window.ethereum);
         setWeb3(web3);
+        const accounts = await web3.eth.getAccounts();
+        console.log(accounts);
+
+        setAddress(accounts[0]);
         const betCon = bettingContract(web3);
         setBetContract(betCon);
         const oneEthToUSD = await getETHPrice();
@@ -132,9 +142,11 @@ function EventPage() {
   useEffect(() => {
     if (betContract) {
       getMatches();
+      console.log(address);
     }
   }, [betContract]);
   useEffect(() => {
+    console.log(import.meta.env.VITE_OWNER_ADDRESS);
     if (user) {
       if (state.uid == user.uid) {
         setIsAllowed(true);
@@ -168,15 +180,16 @@ function EventPage() {
   const declareWinner = async (match) => {
     console.log("declaring  winner for", match);
     try {
-      if (match.matchID &&(winner==1 ||winner==2)) {
+      if (match.matchID && (winner == 1 || winner == 2)) {
         await window.ethereum.request({ method: "eth_requestAccounts" });
         const web3 = new Web3(window.ethereum);
         const accounts = await web3.eth.getAccounts();
-        const declare=await bettingContract(web3)
-          .methods.declareWinnerAndDistribute(state.id, match.matchID, winner).send({
-            from:accounts[0]
+        const declare = await bettingContract(web3)
+          .methods.declareWinnerAndDistribute(state.id, match.matchID, winner)
+          .send({
+            from: accounts[0],
           });
-          console.log(declare)
+        console.log(declare);
       } else {
         console.log("match id is null ");
       }
@@ -185,64 +198,9 @@ function EventPage() {
     }
   };
 
-  //   async function createMatch() {
-  //     if (typeof window.ethereum !== "undefined") {
-  //         try {
-  //             setMatchInput({
-  //                 ...matchInput,
-  //                 // Add necessary properties for match creation, e.g., uid, status, etc.
-  //             });
-  //             console.log(matchInput);
-
-  //             // Request user to connect accounts (Metamask will prompt)
-  //             await window.ethereum.request({ method: "eth_requestAccounts" });
-
-  //             // Get the connected accounts
-  //             const web3 = new Web3(window.ethereum);
-  //             const accounts = await web3.eth.getAccounts();
-
-  //             // Create a contract instance
-  //             const contract = new web3.eth.Contract(
-  //                 ABI.abi,
-  //                 import.meta.env.VITE_CONTRACT_ADDRESS
-  //             );
-
-  //             // Call the createMatch function in your smart contract
-  //             const result = await contract.methods
-  //                 .createMatch(
-  //                     // Pass necessary parameters for creating a match
-  //                     matchInput.team1,
-  //                     matchInput.team2,
-  //                     matchInput.matchDate
-  //                 )
-  //                 .send({ from: accounts[0] });
-
-  //             console.log(result);
-
-  //             // Optionally, update UI or fetch matches again after creation
-  //             // getMatches();
-  //         } catch (error) {
-  //             console.log(error);
-  //             toast.error("Connect to Mainnet!", {
-  //                 theme: "dark",
-  //             });
-  //         }
-  //     } else {
-  //         toast.error("Install Metamask!", {
-  //             theme: "dark",
-  //         });
-  //     }
-  // }
-
   return (
     <>
       <NavBar />
-      {/*  TODO
-      <div>
-        Event {eventID},<br />
-        Display all events detail and matchs<br/>
-        Show add match button only to owner of the event 
-      </div> */}
       <section className="mx-12 my-5">
         <div className=" w-full bg-base-100 my-3">
           <div className="">
@@ -264,21 +222,30 @@ function EventPage() {
         </div>
         <div className="divider divider-accent"></div>
         <div className="flex gap-5">
-          <button className="btn btn-primary" onClick={connectWallet}>
-            Show All Matches
-          </button>
           <button
-            className="btn"
+            className="btn btn-primary"
             onClick={() => {
-              if (user) {
-                document.getElementById("createMatchModal").showModal();
-              } else {
-                document.getElementById("NotLoggedIn").showModal();
+              if (web3 == null) {
+                connectWallet();
               }
             }}
           >
-            + Add Match
+            Show All Matches
           </button>
+          {address == import.meta.env.VITE_OWNER_ADDRESS && (
+            <button
+              className="btn"
+              onClick={() => {
+                if (user) {
+                  document.getElementById("createMatchModal").showModal();
+                } else {
+                  document.getElementById("NotLoggedIn").showModal();
+                }
+              }}
+            >
+              + Add Match
+            </button>
+          )}
         </div>
         <dialog id="createMatchModal" className="modal">
           <div className="modal-box w-11/12 max-w-5xl">
@@ -338,7 +305,17 @@ function EventPage() {
 
             <div className="modal-action">
               <form method="dialog">
-                <button className="btn btn-primary" onClick={createMatch}>
+                <button
+                  className="btn btn-primary"
+                  disabled={
+                    matchInput.team1.length == 0 ||
+                    matchInput.team2.length == 0 ||
+                    matchInput.matchDate == null
+                  }
+                  onClick={() => {
+                    createMatch();
+                  }}
+                >
                   Create
                 </button>
               </form>
@@ -369,7 +346,7 @@ function EventPage() {
           </div>
         </dialog>
         <div>
-          {matchesArray && (
+          {matchesArray.length > 0 && (
             <div className="card-title text-3xl my-5">Matches </div>
           )}
           <div className="mx-2">
@@ -379,62 +356,57 @@ function EventPage() {
                   <>
                     <li key={index}>
                       <div className="flex justify-between">
-                        <div className="badge badge-primary badge-outline py-2 ">
+                        <div className="badge badge-primary badge-outline py-2 mx-12 ">
                           {match.status}
                         </div>
-                        <span className="countdown font-mono text-2xl right">
-                          <span
-                            style={{
-                              "--value": new Date(match.duration).getDate(),
-                            }}
-                          ></span>
-                          :<span style={{ "--value": 24 }}></span>:
-                          <span style={{ "--value": 51 }}></span>
-                        </span>
+                        <div className="font-mono text-2xl right mx-12">
+                          <div>{match.duration}</div>
+                        </div>
                       </div>
                       <div className="my-3 flex gap-2 flex-row align-center justify-center">
                         <div className="flex flex-col w-full lg:flex-row">
-                          <div className="grid w-full h-32 card bg-base-300 rounded-box place-items-center card-title mx-12">
+                          <div className={`grid w-full h-32 card text-3xl rounded-box place-items-center card-title mx-12 ${match.resultAnnounced &&Number(match.winnerID)==1?"bg-accent":" bg-base-300  "}`}>
                             {match.team1}
                           </div>
                           <div className="divider lg:divider-horizontal">
                             VS
                           </div>
-                          <div className="grid w-full h-32 card bg-base-300 rounded-box place-items-center card-title mx-12">
+                          <div className="grid w-full h-32 card bg-base-300 text-3xl rounded-box place-items-center card-title mx-12">
                             {match.team2}
                           </div>
                         </div>
                       </div>
                       <div className="w-full flex justify-center items-center align-center gap-2">
-                        <button
-                          className="btn btn-wide btn-primary my-4 "
-                          onClick={() =>
-                            document.getElementById("MakeBetModal").showModal()
-                          }
-                        >
-                          Bet (User)
-                        </button>
-                        <button
-                          className="btn btn-wide btn-primary my-4 "
-                          onClick={() =>
-                            document
-                              .getElementById("declareResultModal")
-                              .showModal()
-                          }
-                        >
-                          declare result (owner)
-                        </button>
+                        {address == import.meta.env.VITE_OWNER_ADDRESS ? (
+                          <button
+                            className="btn btn-wide btn-primary my-4 "
+                            onClick={() =>
+                              document
+                                .getElementById("declareResultModal")
+                                .showModal()
+                            }
+                            disabled={match.resultAnnounced}
+                          >
+                            {match.resultAnnounced?"Declared":"Declare Result"}
+                          </button>
+                        ) : (
+                          <button
+                            className="btn btn-wide btn-primary my-4 "
+                            onClick={() =>
+                              document
+                                .getElementById("MakeBetModal")
+                                .showModal()
+                            }
+                          >
+                            Bet
+                          </button>
+                        )}
                       </div>
                       <dialog id="MakeBetModal" className="modal">
                         <div className="modal-box">
                           <h3 className="font-bold text-lg my-2">Make bet </h3>
                           <div className="divider"></div>
-                          {/* <div className="text my-2 flex flex-col items-center w-full">
-                            {" "}
-                            You are making the bet on {
-                              match.outcomeA.text
-                            } {" "} Vs {match.outcomeB.text}
-                          </div> */}
+
                           <div className="text my-1 flex flex-col items-center w-full ">
                             Choose one
                           </div>
@@ -518,6 +490,9 @@ function EventPage() {
                               <button
                                 className="btn mx-3 btn-primary"
                                 onClick={() => makeBet(match)}
+                                disabled={
+                                  bet.chosenID == null || bet.betAmount == 0
+                                }
                               >
                                 Confirm
                               </button>
@@ -532,19 +507,13 @@ function EventPage() {
                         <div className="modal-box">
                           <h3 className="font-bold text-lg my-2">Make bet </h3>
                           <div className="divider"></div>
-                          {/* <div className="text my-2 flex flex-col items-center w-full">
-                            {" "}
-                            You are making the bet on {
-                              match.outcomeA.text
-                            } {" "} Vs {match.outcomeB.text}
-                          </div> */}
                           <div className="text my-1 flex flex-col items-center w-full ">
                             Choose one
                           </div>
                           <div className="flex w-full flex-row gap-2 flex-1 justify-center my-4">
                             <div
                               className={` btn btn-outline ${
-                                bet.team === match.team1
+                                winner==1
                                   ? "bg-accent text-black"
                                   : "btn-accent"
                               }`}
@@ -554,7 +523,7 @@ function EventPage() {
                             </div>
                             <div
                               className={` btn btn-outline ${
-                                bet.team === match.team2
+                                winner==2
                                   ? "bg-accent text-black"
                                   : "btn-accent "
                               }`}
@@ -564,7 +533,12 @@ function EventPage() {
                             </div>
                           </div>
                           <div className="divider divider-neutral"></div>
-                          <p> You chose {winner}</p>
+                          <p>
+                            You chose {" "}
+                            <span className="font-extrabold underline text-xl">
+                              {winner == 1 ? match.team1 : winner==2?match.team2:"   "}
+                            </span>
+                          </p>
                           <form method="dialog">
                             <div className="flex flex-row-reverse ">
                               <button

@@ -16,10 +16,11 @@ function Signup() {
     e.preventDefault();
     setError("");
     try {
+      
       await signUp(email, password, displayName);
-      navigate("/auth/login");
+      navigate("/");
     } catch (err) {
-      setError(err);
+      setError(err.message);
     }
   };
 
@@ -73,6 +74,7 @@ function Signup() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
+              <div className='text-red-500'>{error}</div>
               <div>
                 <button
                   type="submit"

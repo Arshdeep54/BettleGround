@@ -121,9 +121,6 @@
             return currentMatches;
         }
 
-        // now i have made events and their matches
-        //now i have to write function to bet on any match of any event
-        // also, function where owner declares result and prozes are distributed
 
         function createBet(
             uint256 _eventID,

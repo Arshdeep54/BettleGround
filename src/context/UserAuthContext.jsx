@@ -27,7 +27,7 @@ export function UserAuthContextProvider({ children }) {
   }
   
   async function signUp(email, password, displayName) {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    try{const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     if (user) {
       return updateProfile(user, { displayName: displayName }).then(() => {
@@ -35,7 +35,10 @@ export function UserAuthContextProvider({ children }) {
       });
     }
     return userCredential;
-  }
+  }catch(error){
+    console.log(error.message);
+    throw new Error(error.message);
+  }}
   
   function logOut() {
     return signOut(auth);

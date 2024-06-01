@@ -4,7 +4,7 @@ import Card from "../components/Card";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useUserAuth } from "../context/UserAuthContext";
 import { NavLink } from "react-router-dom";
-import star from "../assets/Star.svg"; 
+import star from "../assets/Star.svg";
 import shield from "../assets/Shield.svg";
 
 function Home() {
@@ -20,8 +20,7 @@ function Home() {
       id: "feature-1",
       icon: star,
       title: "Rewards",
-      content:
-        "You can win big rewards!",
+      content: "You can win big rewards!",
     },
     {
       id: "feature-2",
@@ -30,7 +29,7 @@ function Home() {
       content:
         "The system is decentralized so your bets are safe and so are your rewards.",
     },
-  ]
+  ];
   const FeatureCard = ({ icon, title, content, index }) => (
     <div className={`mt-5 flex flex-row p-6 rounded-[20px]  feature-card`}>
       <div className={`w-[64px] h-[64px] rounded-full bg-dimBlue`}>
@@ -49,45 +48,49 @@ function Home() {
   return (
     <>
       <NavBar />
-      {isLoggedIn ? <>
-  <div className="hero min-h-screen bg-base-200 ">
-    <div className="hero-content text-center flex ">
-      <div className="max-w-md">
-        <h1 className="text-5xl font-bold">Welcome {user.displayName}</h1>
-        <p className="py-6">Lets head over to win something!</p>
-        <button className="btn btn-primary">
-          <NavLink to={"/events"}>Make your bets!</NavLink>
-        </button>
-      </div>
-  <div className="flex justify-center">
-    
-    <div className="flex flex-col">
-      {features.map((feature, index) => (
-        <FeatureCard key={feature.id} {...feature} index={index} />
-      ))}
-    </div>
-    </div>
-  </div>
-  </div>
-</>
-       
-      :  
-      <div className="hero min-h-screen bg-base-200">
-      <div className="hero-content text-center">
-          <div className="max-w-md">
-            <h1 className="text-5xl font-bold">Welcome user!</h1>
-            <p className="py-6">Start your betting journey</p>
-            <button className="btn btn-primary" ><NavLink to={"/auth/login"}>Login</NavLink></button>
+      {isLoggedIn ? (
+        <>
+          <div className="hero min-h-screen bg-base-200 ">
+            <div className="hero-content text-center flex ">
+              <div className="max-w-md">
+                <h1 className="text-5xl font-bold">
+                  Welcome {user.displayName}
+                </h1>
+                <p className="py-6">Lets head over to win something!</p>
+                <button className="btn btn-primary">
+                  <NavLink to={"/events"}>Make your bets!</NavLink>
+                </button>
+              </div>
+              <div className="flex justify-center">
+                <div className="flex flex-col">
+                  {features.map((feature, index) => (
+                    <FeatureCard key={feature.id} {...feature} index={index} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="hero min-h-screen bg-base-200">
+          <div className="hero-content text-center gap-20">
+            <div className="max-w-md">
+              <h1 className="text-5xl font-bold">Welcome user!</h1>
+              <p className="py-6">Start your betting journey</p>
+              <button className="btn btn-primary">
+                <NavLink to={"/auth/login"}>Login</NavLink>
+              </button>
+            </div>
+            <div className="flex justify-center">
+              <div className="flex-col bg-base-200">
+                {features.map((feature, index) => (
+                  <FeatureCard key={feature.id} {...feature} index={index} />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-        <div className="flex-col bg-base-200">
-      {features.map((feature, index) => (
-        <FeatureCard key={feature.id} {...feature} index={index} />
-      ))}
-    </div>
-      </div>
-      }
-      
+      )}
     </>
   );
 }
