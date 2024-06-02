@@ -6,6 +6,7 @@ import Web3 from "web3";
 import bettingContract from "../../blockchain/Betting";
 import { getETHPrice } from "../../blockchain/priceFeedChainlink";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 function EventPage() {
   const { state } = useLocation();
@@ -16,6 +17,16 @@ function EventPage() {
   const [winner, setWinner] = useState(null);
   const [addMatchError, setAddMatchError] = useState(null);
   const [address, setAddress] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingBet, setLoadingBet] = useState({
+    loading: false,
+    loadingID: null,
+  });
+  const [loadingDeclare, setLoadingDeclare] = useState({
+    loading: false,
+    loadingID: null,
+  });
+  const [modalMatch, setModalMatch] = useState(null);
   const [bet, setBet] = useState({
     chosenID: 0,
     team: "",
@@ -23,7 +34,6 @@ function EventPage() {
     matchID: null,
     betAmount: null,
     betAmountInUSD: null,
-    selectedCurr: "USD",
   });
   const [web3, setWeb3] = useState(null);
   const [matchesArray, setMatchesArray] = useState([]);
@@ -43,22 +53,29 @@ function EventPage() {
         .methods.getMatches(state.id)
         .call();
       console.log(matchesFromContract);
-      const newArrayToAdd = [];
-      setMatchesArray(newArrayToAdd);
+      const uniqueMatchIDs = new Set();
+      const uniqueMatches = [];
+
       matchesFromContract.forEach((matchFromContract) => {
-        const newMatch = {
-          matchID: matchFromContract["matchID"],
-          team1: matchFromContract["side1"],
-          team2: matchFromContract["side2"],
-          status: matchFromContract["resultAnnounced"]?"ended":"onGoing",
-          resultAnnounced: matchFromContract["resultAnnounced"],
-          winnerID: matchFromContract["winnerID"],
-          duration: matchFromContract["duration"],
-        };
-        console.log(newMatch);
-        newArrayToAdd.push(newMatch);
+        const matchID = matchFromContract["matchID"];
+
+        // Check if match ID is unique before adding
+        if (!uniqueMatchIDs.has(matchID)) {
+          uniqueMatchIDs.add(matchID); // Add to Set if unique
+          const newMatch = {
+            matchID,
+            team1: matchFromContract["side1"],
+            team2: matchFromContract["side2"],
+            status: matchFromContract["resultAnnounced"] ? "ended" : "onGoing",
+            resultAnnounced: matchFromContract["resultAnnounced"],
+            winnerID: matchFromContract["winnerID"],
+            duration: matchFromContract["duration"],
+          };
+          uniqueMatches.push(newMatch);
+        }
       });
-      setMatchesArray([...matchesArray, ...newArrayToAdd]);
+
+      setMatchesArray(uniqueMatches);
       console.log(bettingContract(web3));
     } catch (error) {
       console.log(error);
@@ -68,7 +85,7 @@ function EventPage() {
   async function createMatch() {
     const match = {
       eventID: state.id,
-      matchID: state.matches.length + 1,
+      matchID: matchesArray.length + 1,
       sideA: matchInput.team1,
       sideB: matchInput.team2,
       ID1: 1,
@@ -79,13 +96,13 @@ function EventPage() {
     if (typeof window.ethereum !== "undefined") {
       try {
         console.log(user);
-
         if (user) {
           await window.ethereum.request({ method: "eth_requestAccounts" });
           const web3 = new Web3(window.ethereum);
           setWeb3(web3);
           const accounts = await web3.eth.getAccounts();
           console.log(accounts);
+          setLoading(true);
           const events = await betContract.methods
             .createMatch(
               match.eventID,
@@ -96,9 +113,15 @@ function EventPage() {
               match.ID2,
               match.duration
             )
-            .send({ from: accounts[0] });
+            .send({ from: accounts[0] })
+            .on("confirmation", (confirmationNumber, receipt) => {
+              console.log("Confirmation:", confirmationNumber);
+              setLoading(false);
+              toast.success("Transaction completed", { theme: "dark" });
+            });
           console.log(events);
           await getMatches();
+          setLoading(false);
         } else {
           console.log("not lggowbev ");
           throw Error("You are not logged in");
@@ -108,6 +131,7 @@ function EventPage() {
         toast.error(error.message, {
           theme: "dark",
         });
+        setLoading(false);
       }
     } else {
       toast.error("Install Metamask!", {
@@ -130,6 +154,10 @@ function EventPage() {
         setAddress(accounts[0]);
         const betCon = bettingContract(web3);
         setBetContract(betCon);
+        const contractBalance = await web3.eth.getBalance(
+          "0xE719712E97d3130F6441D6Be950A2a440D2CCf87"
+        );
+        console.log(web3.utils.fromWei(contractBalance, "ether"));
         const oneEthToUSD = await getETHPrice();
         setOneEthToUsd(oneEthToUSD);
         const usdValue = Number(354 * oneEthToUSD).toFixed(2);
@@ -164,17 +192,36 @@ function EventPage() {
         await window.ethereum.request({ method: "eth_requestAccounts" });
         const web3 = new Web3(window.ethereum);
         const accounts = await web3.eth.getAccounts();
+        setLoadingBet({ loading: true, loadingID: match.matchID });
         await bettingContract(web3)
           .methods.createBet(state.id, match.matchID, bet.chosenID)
           .send({
             from: accounts[0],
             value: web3.utils.toWei(bet.betAmount.toString(), "ether"),
+          })
+          .on("confirmation", (confirmationNumber, receipt) => {
+            console.log("Confirmation:", confirmationNumber);
+            setLoadingBet({ loading: false, loadingID: null });
+            toast.success("Transaction completed", { theme: "dark" });
           });
+        setBet({
+          chosenID: 0,
+          team: "",
+          eventID: null,
+          matchID: null,
+          betAmount: null,
+          betAmountInUSD: null,
+        });
+        setLoadingBet({ loading: false, loadingID: null });
       } else {
         console.log("match id is null ");
       }
     } catch (error) {
       console.log(error);
+      toast.error(error.message, {
+        theme: "dark",
+      });
+      setLoadingBet(false);
     }
   };
   const declareWinner = async (match) => {
@@ -184,17 +231,28 @@ function EventPage() {
         await window.ethereum.request({ method: "eth_requestAccounts" });
         const web3 = new Web3(window.ethereum);
         const accounts = await web3.eth.getAccounts();
+        setLoadingDeclare({ loading: true, loadingID: match.matchID });
         const declare = await bettingContract(web3)
           .methods.declareWinnerAndDistribute(state.id, match.matchID, winner)
           .send({
             from: accounts[0],
+          })
+          .on("confirmation", (confirmationNumber, receipt) => {
+            console.log("Confirmation:", confirmationNumber);
+            setLoadingDeclare({ loading: false, loadingID: null });
+            toast.success("Transaction completed", { theme: "dark" });
+            setWinner(null);
           });
         console.log(declare);
+        setLoadingDeclare({ loading: false, loadingID: null });
       } else {
         console.log("match id is null ");
       }
     } catch (error) {
-      console.log(error);
+      toast.error(error.message, {
+        theme: "dark",
+      });
+      setLoadingDeclare(false);
     }
   };
 
@@ -225,9 +283,7 @@ function EventPage() {
           <button
             className="btn btn-primary"
             onClick={() => {
-              if (web3 == null) {
-                connectWallet();
-              }
+              connectWallet();
             }}
           >
             Show All Matches
@@ -243,7 +299,7 @@ function EventPage() {
                 }
               }}
             >
-              + Add Match
+              {loading ? <LoadingSpinner /> : "+ Add Match"}
             </button>
           )}
         </div>
@@ -352,6 +408,9 @@ function EventPage() {
           <div className="mx-2">
             <ul>
               {matchesArray.map((match, index) => {
+                {
+                  console.log(matchesArray);
+                }
                 return (
                   <>
                     <li key={index}>
@@ -365,13 +424,27 @@ function EventPage() {
                       </div>
                       <div className="my-3 flex gap-2 flex-row align-center justify-center">
                         <div className="flex flex-col w-full lg:flex-row">
-                          <div className={`grid w-full h-32 card text-3xl rounded-box place-items-center card-title mx-12 ${match.resultAnnounced &&Number(match.winnerID)==1?"bg-accent":" bg-base-300  "}`}>
+                          <div
+                            className={`grid w-full h-32 card text-3xl rounded-box place-items-center card-title mx-12 ${
+                              match.resultAnnounced &&
+                              Number(match.winnerID) == 1
+                                ? "bg-accent"
+                                : " bg-base-300  "
+                            }`}
+                          >
                             {match.team1}
                           </div>
                           <div className="divider lg:divider-horizontal">
                             VS
                           </div>
-                          <div className="grid w-full h-32 card bg-base-300 text-3xl rounded-box place-items-center card-title mx-12">
+                          <div
+                            className={`grid w-full h-32 card text-3xl rounded-box place-items-center card-title mx-12 ${
+                              match.resultAnnounced &&
+                              Number(match.winnerID) == 2
+                                ? "bg-accent"
+                                : " bg-base-300  "
+                            }`}
+                          >
                             {match.team2}
                           </div>
                         </div>
@@ -382,27 +455,45 @@ function EventPage() {
                             className="btn btn-wide btn-primary my-4 "
                             onClick={() =>
                               document
-                                .getElementById("declareResultModal")
+                                .getElementById(
+                                  `declareResultModal${match.matchID}`
+                                )
                                 .showModal()
                             }
                             disabled={match.resultAnnounced}
                           >
-                            {match.resultAnnounced?"Declared":"Declare Result"}
+                            {loadingDeclare.loading &&
+                            loadingDeclare.loadingID == match.matchID ? (
+                              <LoadingSpinner />
+                            ) : match.resultAnnounced ? (
+                              "Declared"
+                            ) : (
+                              "Declare Result"
+                            )}
                           </button>
                         ) : (
                           <button
                             className="btn btn-wide btn-primary my-4 "
-                            onClick={() =>
+                            onClick={() => {
                               document
-                                .getElementById("MakeBetModal")
-                                .showModal()
-                            }
+                                .getElementById(`makeBetModal${match.matchID}`)
+                                .showModal();
+                            }}
+                            disabled={match.resultAnnounced}
                           >
-                            Bet
+                            {loadingBet.loading &&
+                            loadingBet.loadingID == match.matchID ? (
+                              <LoadingSpinner />
+                            ) : (
+                              "Bet"
+                            )}
                           </button>
                         )}
                       </div>
-                      <dialog id="MakeBetModal" className="modal">
+                      <dialog
+                        id={`makeBetModal${match.matchID}`}
+                        className="modal"
+                      >
                         <div className="modal-box">
                           <h3 className="font-bold text-lg my-2">Make bet </h3>
                           <div className="divider"></div>
@@ -425,6 +516,7 @@ function EventPage() {
                                 })
                               }
                             >
+                              {console.log(match)}
                               {match.team1}
                             </div>
                             <div
@@ -503,7 +595,10 @@ function EventPage() {
                           </form>
                         </div>
                       </dialog>
-                      <dialog id="declareResultModal" className="modal">
+                      <dialog
+                        id={`declareResultModal${match.matchID}`}
+                        className="modal"
+                      >
                         <div className="modal-box">
                           <h3 className="font-bold text-lg my-2">Make bet </h3>
                           <div className="divider"></div>
@@ -513,7 +608,7 @@ function EventPage() {
                           <div className="flex w-full flex-row gap-2 flex-1 justify-center my-4">
                             <div
                               className={` btn btn-outline ${
-                                winner==1
+                                winner == 1
                                   ? "bg-accent text-black"
                                   : "btn-accent"
                               }`}
@@ -523,7 +618,7 @@ function EventPage() {
                             </div>
                             <div
                               className={` btn btn-outline ${
-                                winner==2
+                                winner == 2
                                   ? "bg-accent text-black"
                                   : "btn-accent "
                               }`}
@@ -534,9 +629,13 @@ function EventPage() {
                           </div>
                           <div className="divider divider-neutral"></div>
                           <p>
-                            You chose {" "}
+                            You chose{" "}
                             <span className="font-extrabold underline text-xl">
-                              {winner == 1 ? match.team1 : winner==2?match.team2:"   "}
+                              {winner == 1
+                                ? match.team1
+                                : winner == 2
+                                ? match.team2
+                                : "   "}
                             </span>
                           </p>
                           <form method="dialog">

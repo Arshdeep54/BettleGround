@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import DefaultImage from "../assets/defaultprofile.png";
 import { useWeb3 } from "../context/web3Contex";
 import { Bounce, Slide, ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Web3 from "web3";
 function NavBar() {
   const { user, logOut } = useUserAuth();
@@ -17,12 +18,12 @@ function NavBar() {
   const [loading, setLoading] = useState(false);
   async function connectWallet() {
     if (typeof window.ethereum !== "undefined") {
-      try{
-        await window.ethereum.request({method:"eth_requestAccounts"})
-        const web3=new Web3(window.ethereum)
-        setConnected(true)
-      }catch(err){
-        console.log(err.message)
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        const web3 = new Web3(window.ethereum);
+        setConnected(true);
+      } catch (err) {
+        console.log(err.message);
       }
     } else {
       toast.error("Please install Metamask wallet in this browser", {
@@ -72,7 +73,10 @@ function NavBar() {
               </ul>
             </div>
             <NavLink className="btn btn-ghost text-xl" to={"/"}>
-              SatteBaazi
+              <h1 className="text-3xl">
+                <span>Pool</span>
+                <span className="text-secondary">et.</span>
+              </h1>
             </NavLink>
           </div>
           <div className="navbar-center hidden lg:flex">
@@ -163,8 +167,8 @@ function NavBar() {
             )}
           </div>
         </div>
-          
-
+        <div></div>
+        <ToastContainer />
       </div>
       <dialog id="my_modal_2" className="modal">
         <div className="modal-box">

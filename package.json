@@ -11,6 +11,7 @@
     "compile": "solcjs --abi --include-path node_modules/ --base-path . blockchain/contracts/BettingDapp.sol --output-dir blockchain/build"
   },
   "dependencies": {
+    "emailjs-com": "^3.2.0",
     "ethers": "^5.0.0",
     "firebase": "^10.12.1",
     "react": "^18.2.0",
