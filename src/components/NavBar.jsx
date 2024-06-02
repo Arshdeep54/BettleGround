@@ -72,7 +72,7 @@ function NavBar() {
               </ul>
             </div>
             <NavLink className="btn btn-ghost text-xl" to={"/"}>
-              SatteBaazi
+              <h1 className="text-3xl"><span>Pool</span><span className="text-secondary">et.</span></h1>
             </NavLink>
           </div>
           <div className="navbar-center hidden lg:flex">

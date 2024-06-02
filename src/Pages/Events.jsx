@@ -301,13 +301,14 @@ function Events() {
       <NavBar />
       <section className="eventSection my-5 mx-12">
         <button
-          className="btn btn-primary"
+          className="btn btn-primary my-5"
           onClick={() => {
             !web3 && connectWallet();
           }}
         >
           {web3 ? "Connected" : "Connect Wallet"}
         </button>
+        
         <div className="mx-5 flex justify-between items-center flex-row">
           <div className="text-6xl card-title m-4">Events</div>
           <div className="flex item-center flex-row">
