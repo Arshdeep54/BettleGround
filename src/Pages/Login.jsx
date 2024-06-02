@@ -8,7 +8,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const {user, logIn, googleSignIn } = useUserAuth();
+  const { user, logIn, googleSignIn } = useUserAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -19,7 +19,8 @@ function Login() {
       await logIn(email, password);
       navigate("/");
     } catch (err) {
-      setError(err);
+      console.log(err);
+      setError(err.message);
     }
   };
 
@@ -29,12 +30,11 @@ function Login() {
       await googleSignIn();
       navigate("/");
     } catch (err) {
-      console.log(err);
+      setError(err);
     }
   };
   return (
-  
-     <>
+    <>
       <NavBar />
       <form className="my-10" onSubmit={handleSubmit}>
         <div className="flex justify-center self-center  z-10">
@@ -45,7 +45,10 @@ function Login() {
             </div>
             <div className="space-y-5">
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium text-gray-700 tracking-wide">
+                <label
+                  htmlFor="email"
+                  className="text-sm font-medium text-gray-700 tracking-wide"
+                >
                   Email
                 </label>
                 <input
@@ -58,7 +61,10 @@ function Login() {
                 />
               </div>
               <div className="space-y-2">
-                <label htmlFor="password" className="mb-5 text-sm font-medium text-gray-700 tracking-wide">
+                <label
+                  htmlFor="password"
+                  className="mb-5 text-sm font-medium text-gray-700 tracking-wide"
+                >
                   Password
                 </label>
                 <input
@@ -70,6 +76,7 @@ function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
+              <div className="text-red-500">{error}</div>
               <div>
                 <button
                   type="submit"
@@ -77,7 +84,7 @@ function Login() {
                 >
                   Sign in
                 </button>
-                {error && <Alert variant="danger">{error}</Alert>}
+                
                 <div className="divider text-gray-600  divider-neutral">OR</div>
                 <button
                   type="button"
@@ -87,13 +94,12 @@ function Login() {
                   Sign in with Google
                 </button>
                 <p className="mt-2 text-xs text-center text-gray-700 mb-2">
-                New here?{" "}
-                <span className=" text-blue-600 hover:underline">
-                  <Link to="/auth/signup">Signup</Link>
-                </span>
-              </p>
+                  New here?{" "}
+                  <span className=" text-blue-600 hover:underline">
+                    <Link to="/auth/signup">Signup</Link>
+                  </span>
+                </p>
               </div>
-              
             </div>
           </div>
         </div>
@@ -103,5 +109,3 @@ function Login() {
 }
 
 export default Login;
-
-

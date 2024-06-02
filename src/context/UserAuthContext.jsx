@@ -6,7 +6,7 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
-  updateProfile
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../firebase";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -23,27 +23,37 @@ export function UserAuthContextProvider({ children }) {
   const [user, setUser] = useState(null);
 
   async function logIn(email, password) {
-    return signInWithEmailAndPassword(auth, email, password);
-  }
-  
-  async function signUp(email, password, displayName) {
-    try{const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    if (user) {
-      return updateProfile(user, { displayName: displayName }).then(() => {
-        return userCredential;
-      });
+    try {
+      return signInWithEmailAndPassword(auth, email, password);
+    } catch (err) {
+      throw new Error(err.message);
     }
-    return userCredential;
-  }catch(error){
-    console.log(error.message);
-    throw new Error(error.message);
-  }}
-  
+  }
+
+  async function signUp(email, password, displayName) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      if (user) {
+        return updateProfile(user, { displayName: displayName }).then(() => {
+          return userCredential;
+        });
+      }
+      return userCredential;
+    } catch (error) {
+      console.log(error.message);
+      throw new Error(error.message);
+    }
+  }
+
   function logOut() {
     return signOut(auth);
   }
-  
+
   function googleSignIn() {
     const googleAuthProvider = new GoogleAuthProvider();
     return signInWithPopup(auth, googleAuthProvider);

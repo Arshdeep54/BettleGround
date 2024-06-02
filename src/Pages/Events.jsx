@@ -30,7 +30,7 @@ function Events() {
     uid: null,
     tags: [],
     description: "",
-    endOn: new Date(),
+    endOn:new Date().toISOString().slice(0, -1),
     status: "",
   });
   function handleKeyDown(e) {
@@ -102,7 +102,6 @@ function Events() {
             .send({ from: accounts[0] })
             .on("confirmation", (confirmationNumber, receipt) => {
               console.log("Confirmation:", confirmationNumber);
-              toast.success("Transaction completed");
             });
           console.log(events);
 
@@ -135,6 +134,7 @@ function Events() {
         setAddress(accounts[0]);
         const betCon = bettingContract(web3);
         setBetContract(betCon);
+        console.log(betCon);
         toast.success("Connected Successfully", {
           theme: "dark",
         });
@@ -484,7 +484,7 @@ function Events() {
               Connect the Wallet to see all Events
             </div>
           ) : (
-            [...eventsArray].map((event, index) => {
+            eventsArray.slice(2).map((event, index) => {
               return (
                 <Card
                   id={event.eventID}

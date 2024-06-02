@@ -41,8 +41,9 @@ function EventPage() {
   const [matchInput, setMatchInput] = useState({
     team1: "",
     team2: "",
-    matchDate: new Date(),
+    matchDate: new Date().toISOString().slice(0, 10),
   });
+  const [bettors, setBettors] = useState([]);
 
   const getMatches = async () => {
     try {
@@ -76,9 +77,12 @@ function EventPage() {
       });
 
       setMatchesArray(uniqueMatches);
+      console.log(matchesArray);
       console.log(bettingContract(web3));
     } catch (error) {
-      console.log(error);
+      toast.error(error.message, {
+        theme: "dark",
+      });
     }
   };
 
@@ -113,14 +117,11 @@ function EventPage() {
               match.ID2,
               match.duration
             )
-            .send({ from: accounts[0] })
-            .on("confirmation", (confirmationNumber, receipt) => {
-              console.log("Confirmation:", confirmationNumber);
-              setLoading(false);
-              toast.success("Transaction completed", { theme: "dark" });
-            });
+            .send({ from: accounts[0] });
+
           console.log(events);
           await getMatches();
+
           setLoading(false);
         } else {
           console.log("not lggowbev ");
@@ -154,9 +155,14 @@ function EventPage() {
         setAddress(accounts[0]);
         const betCon = bettingContract(web3);
         setBetContract(betCon);
+
         const contractBalance = await web3.eth.getBalance(
           "0xE719712E97d3130F6441D6Be950A2a440D2CCf87"
         );
+        // const bettors = await betCon.methods.getBettors(state.id, 1).call();
+        // setBettors(bettors);
+        // console.log(bettors);
+
         console.log(web3.utils.fromWei(contractBalance, "ether"));
         const oneEthToUSD = await getETHPrice();
         setOneEthToUsd(oneEthToUSD);
@@ -202,7 +208,6 @@ function EventPage() {
           .on("confirmation", (confirmationNumber, receipt) => {
             console.log("Confirmation:", confirmationNumber);
             setLoadingBet({ loading: false, loadingID: null });
-            toast.success("Transaction completed", { theme: "dark" });
           });
         setBet({
           chosenID: 0,
@@ -237,10 +242,9 @@ function EventPage() {
           .send({
             from: accounts[0],
           })
-          .on("confirmation", (confirmationNumber, receipt) => {
+          .once("confirmation", (confirmationNumber, receipt) => {
             console.log("Confirmation:", confirmationNumber);
             setLoadingDeclare({ loading: false, loadingID: null });
-            toast.success("Transaction completed", { theme: "dark" });
             setWinner(null);
           });
         console.log(declare);
@@ -453,13 +457,19 @@ function EventPage() {
                         {address == import.meta.env.VITE_OWNER_ADDRESS ? (
                           <button
                             className="btn btn-wide btn-primary my-4 "
-                            onClick={() =>
-                              document
-                                .getElementById(
-                                  `declareResultModal${match.matchID}`
-                                )
-                                .showModal()
-                            }
+                            onClick={() => {
+                              if (user) {
+                                document
+                                  .getElementById(
+                                    `declareResultModal${match.matchID}`
+                                  )
+                                  .showModal();
+                              } else {
+                                document
+                                  .getElementById("NotLoggedIn")
+                                  .showModal();
+                              }
+                            }}
                             disabled={match.resultAnnounced}
                           >
                             {loadingDeclare.loading &&
@@ -475,9 +485,17 @@ function EventPage() {
                           <button
                             className="btn btn-wide btn-primary my-4 "
                             onClick={() => {
-                              document
-                                .getElementById(`makeBetModal${match.matchID}`)
-                                .showModal();
+                              if (user) {
+                                document
+                                  .getElementById(
+                                    `makeBetModal${match.matchID}`
+                                  )
+                                  .showModal();
+                              } else {
+                                document
+                                  .getElementById("NotLoggedIn")
+                                  .showModal();
+                              }
                             }}
                             disabled={match.resultAnnounced}
                           >
@@ -577,13 +595,20 @@ function EventPage() {
                               </label>
                             </div>
                           </div>
+                          {(bet.betAmount < 0.01 || isNaN(bet.betAmount)) && (
+                            <div className="text text-red-300">
+                              Minimum bet Amount is 0.01
+                            </div>
+                          )}
                           <form method="dialog">
                             <div className="flex flex-row-reverse ">
                               <button
                                 className="btn mx-3 btn-primary"
                                 onClick={() => makeBet(match)}
                                 disabled={
-                                  bet.chosenID == null || bet.betAmount == 0
+                                  bet.chosenID == 0 ||
+                                  bet.betAmount < 0.01 ||
+                                  isNaN(bet.betAmount)
                                 }
                               >
                                 Confirm

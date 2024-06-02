@@ -58,9 +58,10 @@ function Home() {
                   <span className="text-primary">{user.displayName}</span>
                 </h1>
                 <p className="py-6">Lets head over to win something!</p>
-                <button className="btn btn-primary">
-                  <NavLink to={"/events"}>Make your bets!</NavLink>
-                </button>
+
+                <NavLink to={"/events"}>
+                  <button className="btn btn-primary">Make your bets!</button>
+                </NavLink>
               </div>
               <div className="flex justify-center">
                 <div className="flex flex-col">

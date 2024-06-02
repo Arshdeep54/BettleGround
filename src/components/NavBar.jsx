@@ -64,9 +64,9 @@ function NavBar() {
                 <li>
                   <NavLink to={"/events"}>Events</NavLink>
                 </li>
-                <li>
+                {/* <li>
                   <NavLink to={"/about"}>About</NavLink>
-                </li>
+                </li> */}
                 <li>
                   <NavLink to={"/contact"}>Contact</NavLink>
                 </li>
@@ -74,8 +74,8 @@ function NavBar() {
             </div>
             <NavLink className="btn btn-ghost text-xl" to={"/"}>
               <h1 className="text-3xl">
-                <span>Pool</span>
-                <span className="text-secondary">et.</span>
+                <span className="text-secondary">Bet</span>
+                <span >tleGround</span>
               </h1>
             </NavLink>
           </div>
@@ -84,9 +84,9 @@ function NavBar() {
               <li>
                 <NavLink to={"/events"}>Events</NavLink>
               </li>
-              <li>
+              {/* <li>
                 <NavLink to={"/about"}>About</NavLink>
-              </li>
+              </li> */}
               <li>
                 <NavLink to={"/contact"}>Contact</NavLink>
               </li>
@@ -99,7 +99,7 @@ function NavBar() {
                 role="button"
                 className="btn btn-ghost btn-circle"
               >
-                <NavLink to={"/notify"}>
+                {/* <NavLink to={"/notify"}>
                   <div className="indicator">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -118,7 +118,7 @@ function NavBar() {
 
                     <span className="badge badge-sm indicator-item">1</span>
                   </div>
-                </NavLink>
+                </NavLink> */}
               </div>
             </div>
             {user ? (

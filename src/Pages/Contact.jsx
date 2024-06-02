@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import emailjs from 'emailjs-com';
-import NavBar from '../components/NavBar'
-
+import React, { useState } from "react";
+import emailjs from "emailjs-com";
+import NavBar from "../components/NavBar";
 
 function Contact() {
   const [email, setEmail] = useState("");
@@ -33,27 +32,45 @@ function Contact() {
 
   return (
     <>
-      <NavBar/>
-      <div className='flex justify-center items-center h-screen flex-col'>
-        <h1 className="text-7xl font-bold mb-7">Contact <span className='text-secondary'>us.</span></h1>
-        
-      <form onSubmit={handleSubmit}>
-      <div className="w-full max-w-xs">
-          <label className="form-control my-3">
-            <div className="label">
-            <span className="label-text card-title">What is your email?</span>
-            </div>
-          <input type="email" name="email" placeholder='Email' value={email} onChange={(e) => setEmail(e.target.value)} className="input input-bordered w-full"/>
-        </label>
-        <label className="form-control">
-            <div className="label">
-              <span className="label-text card-title">Any suggestions?</span>
-            </div>
-          <textarea name="message" className="textarea text-base textarea-bordered textarea-lg w-full max-w-xs" value={message} onChange={(e) => setMessage(e.target.value)} />
-          </label>
-          <button className='btn btn-secondary my-4' type="submit">Send</button>
-        </div>
-      </form>
+      <NavBar />
+      <div className="flex justify-center items-center h-screen flex-col">
+        <h1 className="text-7xl font-bold mb-7">
+          Contact <span className="text-secondary">us.</span>
+        </h1>
+
+        <form onSubmit={handleSubmit}>
+          <div className="w-full max-w-xs flex flex-col justify-center align-center">
+            <label className="form-control my-3 ">
+              <div className="label">
+                <span className="label-text card-title">
+                  What is your email?
+                </span>
+              </div>
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input input-bordered w-full"
+              />
+            </label>
+            <label className="form-control">
+              <div className="label">
+                <span className="label-text card-title">Any suggestions?</span>
+              </div>
+              <textarea
+                name="message"
+                className="textarea text-base textarea-bordered textarea-lg w-full max-w-xs"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+            </label>
+            <button className="btn btn-secondary my-4 w-1/2 mx-auto" type="submit">
+              Send
+            </button>
+          </div>
+        </form>
       </div>
     </>
   );
