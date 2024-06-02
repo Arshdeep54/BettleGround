@@ -51,7 +51,7 @@ function Contact() {
             </div>
           <textarea name="message" placeholder="Feel free to suggest" className="textarea text-base textarea-bordered textarea-lg w-full max-w-xs" value={message} onChange={(e) => setMessage(e.target.value)} />
           </label>
-          <button className='btn btn-secondary my-4' type="submit">Send</button>
+          <button className='btn btn-secondary my-4' placeholder="Feel free to suggest" type="submit">Send</button>
         </div>
       </form>
       </div>
