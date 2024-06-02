@@ -323,6 +323,7 @@ function Events() {
         >
           {web3 ? "Connected" : "Connect Wallet"}
         </button>
+        
         <div className="mx-5 flex justify-between items-center flex-row">
           <div className="text-6xl card-title m-4">Events</div>
           <div className="flex item-center flex-row">
