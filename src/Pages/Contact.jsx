@@ -4,22 +4,31 @@ import NavBar from '../components/NavBar'
 
 
 function Contact() {
-  const [email, setEmail] = useState('');
-  const [message, setMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    emailjs.sendForm('service_fvgyrlc', 'template_voawpqo', e.target, 'Uc4nD4gsnEUfn4Jdg')
-      .then((result) => {
-        console.log('Email sent successfully:', result.text);
-      }, (error) => {
-        console.error('Error sending email:', error.text);
-      });
+    emailjs
+      .sendForm(
+        "service_l79xkbg",
+        "template_voawpqo",
+        e.target,
+        "Uc4nD4gsnEUfn4Jdg"
+      )
+      .then(
+        (result) => {
+          console.log("Email sent successfully:", result.text);
+        },
+        (error) => {
+          console.error("Error sending email:", error.text);
+        }
+      );
 
     // Clear form fields
-    setEmail('');
-    setMessage('');
+    setEmail("");
+    setMessage("");
   };
 
   return (

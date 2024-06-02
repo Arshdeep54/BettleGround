@@ -50,26 +50,32 @@ function Events() {
     try {
       const eventsFromContract = await betContract.methods.getEvents().call();
       console.log(eventsFromContract);
-      const newArrayToAdd = [];
-      setEventsArray([]);
+      const uniqueEventIDs = new Set();
+      const uniqueEvents = [];
       eventsFromContract.forEach((eventFromContract) => {
-        const newEvent = {
-          eventName: eventFromContract["name"],
-          eventID: eventFromContract["eventID"],
-          uid: eventFromContract["uid"],
-          matches: eventFromContract["matches"],
-          tags: eventFromContract["tags"],
-          hostedBy: eventFromContract["hostedBy"],
-          description: eventFromContract["description"],
-          status: eventFromContract["status"],
-          endOn: eventFromContract["endDate"],
-        };
-        console.log(newEvent);
-        newArrayToAdd.push(newEvent);
+        const eventID = eventFromContract["eventID"];
+
+        if (!uniqueEventIDs.has(eventID)) {
+          uniqueEventIDs.add(eventID);
+          const newEvent = {
+            eventName: eventFromContract["name"],
+            eventID: eventFromContract["eventID"],
+            uid: eventFromContract["uid"],
+            matches: eventFromContract["matches"],
+            tags: eventFromContract["tags"],
+            hostedBy: eventFromContract["hostedBy"],
+            description: eventFromContract["description"],
+            status: eventFromContract["status"],
+            endOn: eventFromContract["endDate"],
+          };
+          uniqueEvents.push(newEvent);
+        }
       });
-      setEventsArray([...eventsArray, ...newArrayToAdd]);
+      setEventsArray(uniqueEvents);
     } catch (error) {
-      console.log(error);
+      toast.error(error.message, {
+        theme: "dark",
+      });
     }
   };
 
@@ -77,10 +83,12 @@ function Events() {
     if (typeof window.ethereum !== "undefined") {
       try {
         console.log(user);
-        await connectWallet();
         if (user) {
           const accounts = await web3.eth.getAccounts();
-          console.log(accounts);
+          console.log(accounts[0], import.meta.env.VITE_OWNER_ADDRESS);
+          if (accounts[0] != import.meta.env.VITE_OWNER_ADDRESS) {
+            throw new Error("Only owner can create Event ");
+          }
           const events = await betContract.methods
             .createEvent(
               eventInput.eventName,
@@ -91,16 +99,20 @@ function Events() {
               "onGoing",
               eventInput.endOn.toString()
             )
-            .send({ from: accounts[0] });
+            .send({ from: accounts[0] })
+            .on("confirmation", (confirmationNumber, receipt) => {
+              console.log("Confirmation:", confirmationNumber);
+              toast.success("Transaction completed");
+            });
           console.log(events);
+
           getEvents();
         } else {
-          console.log("not lggowbev ");
-          throw Error("You are not logged in");
+          throw new Error("You are not logged in");
         }
       } catch (error) {
-        console.log(error);
-        toast.error("Connect to  Mainnet!", {
+        console.log(error.message);
+        toast.error(error.messaage, {
           theme: "dark",
         });
       }
@@ -123,6 +135,9 @@ function Events() {
         setAddress(accounts[0]);
         const betCon = bettingContract(web3);
         setBetContract(betCon);
+        toast.success("Connected Successfully", {
+          theme: "dark",
+        });
       } catch (error) {
         console.log(error.message);
       }
@@ -303,7 +318,7 @@ function Events() {
         <button
           className="btn btn-primary my-5"
           onClick={() => {
-            !web3 && connectWallet();
+             connectWallet();
           }}
         >
           {web3 ? "Connected" : "Connect Wallet"}
@@ -313,18 +328,20 @@ function Events() {
           <div className="text-6xl card-title m-4">Events</div>
           <div className="flex item-center flex-row">
             <div className="mx-2">
-              <button
-                className="btn"
-                onClick={() => {
-                  if (user) {
-                    document.getElementById("createEventModal").showModal();
-                  } else {
-                    document.getElementById("NotLoggedIn").showModal();
-                  }
-                }}
-              >
-                + Add Event
-              </button>
+              {address == import.meta.env.VITE_OWNER_ADDRESS && (
+                <button
+                  className="btn"
+                  onClick={() => {
+                    if (user) {
+                      document.getElementById("createEventModal").showModal();
+                    } else {
+                      document.getElementById("NotLoggedIn").showModal();
+                    }
+                  }}
+                >
+                  + Add Event
+                </button>
+              )}
               <dialog id="createEventModal" className="modal">
                 <div className="modal-box w-11/12 max-w-5xl">
                   <form method="dialog">
@@ -461,7 +478,7 @@ function Events() {
         <div className="divider divider-default"></div>
         <div className="p-2 mx-5 my-3 grid grid-cols-2 gap-5 ">
           {loading ? (
-            <LoadingSpinner />
+              <LoadingSpinner />
           ) : eventsArray.length == 0 ? (
             <div className="text-2xl w-full items-center flex ">
               Connect the Wallet to see all Events

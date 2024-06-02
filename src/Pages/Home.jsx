@@ -54,7 +54,8 @@ function Home() {
             <div className="hero-content text-center flex ">
               <div className="max-w-md">
                 <h1 className="text-5xl font-bold">
-                  Welcome <span className="text-primary">{user.displayName}</span>
+                  Welcome{" "}
+                  <span className="text-primary">{user.displayName}</span>
                 </h1>
                 <p className="py-6">Lets head over to win something!</p>
                 <button className="btn btn-primary">
@@ -75,7 +76,9 @@ function Home() {
         <div className="hero min-h-screen bg-base-200">
           <div className="hero-content text-center gap-20">
             <div className="max-w-md">
-              <h1 className="text-5xl font-bold">Welcome <span className="text-primary">user!</span></h1>
+              <h1 className="text-5xl font-bold">
+                Welcome <span className="text-primary">user!</span>
+              </h1>
               <p className="py-6">Start your betting journey</p>
               <button className="btn btn-primary">
                 <NavLink to={"/auth/login"}>Login</NavLink>
