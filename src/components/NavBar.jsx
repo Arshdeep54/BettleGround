@@ -76,6 +76,7 @@ function NavBar() {
               <h1 className="text-3xl">
                 <span className="text-secondary">Bet</span>
                 <span >tleGround</span>
+                <span className="text-secondary">.</span>
               </h1>
             </NavLink>
           </div>

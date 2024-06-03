@@ -18,8 +18,8 @@ contract NewBettingDapp is ChainlinkClient, ConfirmedOwner {
         owner = payable(msg.sender);
 
         // Set Chainlink token and Oracle
-        setPublicChainlinkToken();
-        setChainlinkOracle(0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD); // Sepolia testnet Oracle address
+        _setPublicChainlinkToken();
+        _setChainlinkOracle(0x6090149792dAAeE9D1D568c9f9a6F6B46AA29eFD); // Sepolia testnet Oracle address
         jobId = "7223acbd01654282865b678924126013"; // Sepolia testnet Job ID
         fee = (1 * LINK_DIVISIBILITY) / 10; // 0.1 LINK
     }
@@ -219,7 +219,7 @@ contract NewBettingDapp is ChainlinkClient, ConfirmedOwner {
                 uint256 d = (a * b) / c;
                 share = d / PRECISION;
                 address payable receiver = payable(currentBettor.add);
-                (bool callSuccess, ) = receiver.call{value: share}("");
+                (bool callSuccess, ) = reciever.call{value: share}("");
                 require(callSuccess, "Failed to send ether");
             }
         }

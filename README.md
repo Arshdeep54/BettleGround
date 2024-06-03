@@ -1,4 +1,6 @@
-# Poolet Project
+# BettleGround Project
+
+BettleGround transforms the betting landscape with advanced blockchain technology, guaranteeing security and fairness for every wager. Utilising Chainlink's CCIP, it effortlessly bridges different blockchain networks. Beyond an application, BettleGround fosters a community dedicated to trust and transparency in digital engagements. Join BettleGround and step into the future of betting.
 
 - Clone the project 
 - ```npm install``` to install node modules 
